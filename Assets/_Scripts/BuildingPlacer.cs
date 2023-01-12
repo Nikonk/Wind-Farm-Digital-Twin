@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class BuildingPlacer : MonoBehaviour
 {
-    private Building _placedBuilding = null;
-    private Ray _ray;
-    private RaycastHit _raycastHit;
-    private Vector3 _lastPlacementPosition;  
+    private Building    _placedBuilding = null;
+    private Ray         _ray;
+    private RaycastHit  _raycastHit;
+    private Vector3     _lastPlacementPosition;  
 
     void Start()
     {

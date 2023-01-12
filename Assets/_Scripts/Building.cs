@@ -38,7 +38,6 @@ public class Building
             }
         }
         _buildingManager = g.GetComponent<BuildingManager>();
-        _placement = BuildingPlacement.VALID;
         SetMaterials();
     }
 
