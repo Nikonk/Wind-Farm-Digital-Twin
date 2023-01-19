@@ -7,6 +7,11 @@ public class BuildingPlacer : MonoBehaviour
     private Ray         _ray;
     private RaycastHit  _raycastHit;
     private Vector3     _lastPlacementPosition;
+    private UIManager   _uiManager;
+
+    private void Awake() {
+        _uiManager = GetComponent<UIManager>();
+    }
 
     private void Update()
     {
@@ -59,7 +64,12 @@ public class BuildingPlacer : MonoBehaviour
     private void _PlaceBuilding()
     {
         _placedBuilding.Place();
-        _PreparePlacedBuilding(_placedBuilding.DataIndex);
+        if (_placedBuilding.CanBuy())
+            _PreparePlacedBuilding(_placedBuilding.DataIndex);
+        else
+            _placedBuilding = null;
+        _uiManager.UpdateResourceTexts();
+        _uiManager.CheckBuildingButtons();
     }
 
     private void _CancelPlacedBuilding()

@@ -89,6 +89,11 @@ public class Building
         _placement = BuildingPlacement.FIXED;
         SetMaterials();
         _transform.GetComponent<BoxCollider>().isTrigger = false;
+
+        foreach (KeyValuePair<string, int> pair in _data.Cost)
+        {
+            Globals.GAME_RESOURCES[pair.Key].AddAmount(-pair.Value);
+        }
     }
 
     public void CheckValidPlacement()
@@ -97,6 +102,11 @@ public class Building
         _placement = _buildingManager.CheckPlacement()
             ? BuildingPlacement.VALID
             : BuildingPlacement.INVALID;
+    }
+
+    public bool CanBuy()
+    {
+        return _data.CanBuy();
     }
 
     public string Code { get => _data.Code; }
