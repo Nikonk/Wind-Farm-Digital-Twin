@@ -78,9 +78,9 @@ public class Building
         }
 
         Renderer[] renderers = _transform.GetComponentsInChildren<Renderer>();
-        foreach (Renderer rend in renderers)
+        for (int i = 0; i < renderers.Length; i++)
         {
-            rend.materials = materials.ToArray();
+            renderers[i].material = materials[i];
         }
     }
 
