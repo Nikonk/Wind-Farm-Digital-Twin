@@ -1,7 +1,7 @@
 public class GameResource
 {
-    private string          _name;
-    private int             _currentAmount;
+    private string _name;
+    private int _currentAmount;
 
     public GameResource(string name, int intialAmount)
     {

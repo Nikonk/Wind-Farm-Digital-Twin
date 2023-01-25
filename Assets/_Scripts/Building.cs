@@ -10,12 +10,12 @@ public enum BuildingPlacement
 
 public class Building
 {
-    private BuildingData        _data;
-    private Transform           _transform;
-    private int                 _currentHealth;
-    private BuildingPlacement   _placement;
-    private List<Material>      _materials;
-    private BuildingManager     _buildingManager;
+    private BuildingData _data;
+    private Transform _transform;
+    private int _currentHealth;
+    private BuildingPlacement _placement;
+    private List<Material> _materials;
+    private BuildingManager _buildingManager;
 
     public Building(BuildingData data)
     {

@@ -6,16 +6,17 @@ using TMPro;
 public class UIManager : MonoBehaviour
 {
     
-    private BuildingPlacer                  _buildingPlacer;
-    private Dictionary<string, TMP_Text>    _resourceTexts;
-    private Dictionary<string, Button>      _buildingButtons;
+    private BuildingPlacer _buildingPlacer;
+    private Dictionary<string, TMP_Text> _resourceTexts;
+    private Dictionary<string, Button> _buildingButtons;
 
-    public Transform                        buildingMenu;
-    public GameObject                       BuildingButtonPrefab;
-    public Transform                        resourcesUIParent;
-    public GameObject                       gameResourceDisplayPrefab;
+    public Transform buildingMenu;
+    public GameObject BuildingButtonPrefab;
+    public Transform resourcesUIParent;
+    public GameObject gameResourceDisplayPrefab;
     
-    private void Awake() {
+    private void Awake()
+    {
         _buildingPlacer = GetComponent<BuildingPlacer>();
         _resourceTexts = new Dictionary<string, TMP_Text>();
 
@@ -47,6 +48,18 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        EventManager.AddListener("UpdateResourceTexts", _OnUpdateResourceTexts);
+        EventManager.AddListener("CheckBuildingButtons", _OnCheckBuildingButtons);
+    }
+
+    private void OnDisable()
+    {
+        EventManager.RemoveListener("UpdateResourceTexts", _OnUpdateResourceTexts);
+        EventManager.RemoveListener("CheckBuildingButtons", _OnCheckBuildingButtons);
+    }
+
     private void _AddBuildingButtonListener(Button b, int i)
     {
         b.onClick.AddListener(() => _buildingPlacer.SelectPlacedBuilding(i));
@@ -57,7 +70,7 @@ public class UIManager : MonoBehaviour
         _resourceTexts[resource].text = value.ToString();
     }
 
-    public void UpdateResourceTexts()
+    private void _OnUpdateResourceTexts()
     {
         foreach (KeyValuePair<string, GameResource> pair in Globals.GAME_RESOURCES)
         {
@@ -65,7 +78,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void CheckBuildingButtons()
+    private void _OnCheckBuildingButtons()
     {
         foreach (BuildingData data in Globals.BUILDING_DATA)
         {

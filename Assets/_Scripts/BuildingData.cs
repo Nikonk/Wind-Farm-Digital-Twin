@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 public class BuildingData
 {
-    private string                      _code;
-    private int                         _healthpoints;
-    private Dictionary<string, int>     _cost;
+    private string _code;
+    private int _healthpoints;
+    private Dictionary<string, int> _cost;
 
     public BuildingData(string code, int healthpoints, Dictionary<string, int> cost)
     {

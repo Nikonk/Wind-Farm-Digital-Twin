@@ -3,10 +3,10 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider))]
 public class BuildingManager : MonoBehaviour
 {
-    private BoxCollider         _collider;
+    private BoxCollider _collider;
 
-    private Building            _building = null;
-    private int                 _nCollisions = 0;
+    private Building _building = null;
+    private int _nCollisions = 0;
 
     public void Initialize(Building building)
     {

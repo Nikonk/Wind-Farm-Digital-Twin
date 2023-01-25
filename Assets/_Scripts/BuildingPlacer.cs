@@ -3,15 +3,10 @@ using UnityEngine.EventSystems;
 
 public class BuildingPlacer : MonoBehaviour
 {
-    private Building    _placedBuilding = null;
-    private Ray         _ray;
-    private RaycastHit  _raycastHit;
-    private Vector3     _lastPlacementPosition;
-    private UIManager   _uiManager;
-
-    private void Awake() {
-        _uiManager = GetComponent<UIManager>();
-    }
+    private Building _placedBuilding = null;
+    private Ray _ray;
+    private RaycastHit _raycastHit;
+    private Vector3 _lastPlacementPosition;
 
     private void Update()
     {
@@ -68,8 +63,8 @@ public class BuildingPlacer : MonoBehaviour
             _PreparePlacedBuilding(_placedBuilding.DataIndex);
         else
             _placedBuilding = null;
-        _uiManager.UpdateResourceTexts();
-        _uiManager.CheckBuildingButtons();
+        EventManager.TriggerEvent("UpdateResourceTexts");
+        EventManager.TriggerEvent("CheckBuildingButtons");
     }
 
     private void _CancelPlacedBuilding()
