@@ -23,4 +23,6 @@ public class Globals
         {"wind", new GameResource("Wind", 0)},
         {"energy", new GameResource("Energy", 0)}
     };
+
+    public static List<UnitManager> SELECTED_UNITS = new List<UnitManager>();
 }
