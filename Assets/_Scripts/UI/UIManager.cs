@@ -31,16 +31,17 @@ public class UIManager : MonoBehaviour
         _buildingButtons = new Dictionary<string, Button>();
         for (int i = 0; i < Globals.BUILDING_DATA.Length; i++)
         {
+            BuildingData data = Globals.BUILDING_DATA[i];
             GameObject button = GameObject.Instantiate(
                 BuildingButtonPrefab,
                 buildingMenu);
-            string code = Globals.BUILDING_DATA[i].Code;
-            button.name = code;
-            button.transform.Find("Text").GetComponent<TMP_Text>().text = code;
+            button.name = data.UnitName;
+            button.transform.Find("Text").GetComponent<TMP_Text>().text = data.UnitName;
             Button b = button.GetComponent<Button>();
             _AddBuildingButtonListener(b, i);
-
-            _buildingButtons[code] = b;
+            
+            _buildingButtons[data.Code] = b;
+            
             if (!Globals.BUILDING_DATA[i].CanBuy())
             {
                 b.interactable = false;

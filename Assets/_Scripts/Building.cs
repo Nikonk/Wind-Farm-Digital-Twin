@@ -22,9 +22,7 @@ public class Building
         _data = data;
         _currentHealth = data.HP;
 
-        GameObject g = GameObject.Instantiate(
-            Resources.Load($"Prefabs/Buildings/{_data.Code}")
-        ) as GameObject;
+        GameObject g = GameObject.Instantiate(data.Prefab) as GameObject;
         _transform = g.transform;
         _placement = BuildingPlacement.VALID;
         _materials = new List<Material>();
@@ -90,9 +88,9 @@ public class Building
         SetMaterials();
         _transform.GetComponent<BoxCollider>().isTrigger = false;
 
-        foreach (KeyValuePair<string, int> pair in _data.Cost)
+        foreach (ResourceValue resource in _data.Cost)
         {
-            Globals.GAME_RESOURCES[pair.Key].AddAmount(-pair.Value);
+            Globals.GAME_RESOURCES[resource.code].AddAmount(-resource.amount);
         }
     }
 

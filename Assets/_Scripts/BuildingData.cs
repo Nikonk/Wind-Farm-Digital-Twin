@@ -1,23 +1,25 @@
 using System.Collections.Generic;
+using UnityEngine;
 
-public class BuildingData
+[CreateAssetMenu(fileName = "Building", menuName = "Scriptable Objects/Building", order = 1)]
+public class BuildingData : ScriptableObject
 {
+    [SerializeField]
     private string _code;
+    [SerializeField]
+    private string _unitName;
+    [SerializeField]
     private int _healthpoints;
-    private Dictionary<string, int> _cost;
-
-    public BuildingData(string code, int healthpoints, Dictionary<string, int> cost)
-    {
-        _code = code;
-        _healthpoints = healthpoints;
-        _cost = cost;
-    }
+    [SerializeField]
+    private GameObject _prefab;
+    [SerializeField]
+    private List<ResourceValue> _cost;
 
     public bool CanBuy()
     {
-        foreach (KeyValuePair<string, int> pair in _cost)
+        foreach (ResourceValue resource in _cost)
         {
-            if (Globals.GAME_RESOURCES[pair.Key].Amount < pair.Value)
+            if (Globals.GAME_RESOURCES[resource.code].Amount < resource.amount)
             {
                 return false;
             }
@@ -27,5 +29,7 @@ public class BuildingData
 
     public string Code { get => _code; }
     public int HP { get => _healthpoints; }
-    public Dictionary<string, int> Cost { get => _cost; }
+    public List<ResourceValue> Cost { get => _cost; }
+    public GameObject Prefab { get => _prefab; }
+    public string UnitName { get => _unitName; }
 }
