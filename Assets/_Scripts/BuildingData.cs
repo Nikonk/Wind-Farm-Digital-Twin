@@ -9,6 +9,8 @@ public class BuildingData : ScriptableObject
     [SerializeField]
     private string _unitName;
     [SerializeField]
+    private string _description;
+    [SerializeField]
     private int _healthpoints;
     [SerializeField]
     private GameObject _prefab;
@@ -28,8 +30,9 @@ public class BuildingData : ScriptableObject
     }
 
     public string Code { get => _code; }
-    public int HP { get => _healthpoints; }
-    public List<ResourceValue> Cost { get => _cost; }
-    public GameObject Prefab { get => _prefab; }
     public string UnitName { get => _unitName; }
+    public string Description { get => _description; }
+    public int HP { get => _healthpoints; }
+    public GameObject Prefab { get => _prefab; }
+    public List<ResourceValue> Cost { get => _cost; }
 }
