@@ -105,7 +105,7 @@ public class UIManager : MonoBehaviour
 
     private void _OnHoverBuildingButton(CustomEventData data)
     {
-        SetInfoPanel(data.buildingData);
+        SetInfoPanel(data.unitData);
         _ShowInfoPanel(true);
     }
 
@@ -119,7 +119,7 @@ public class UIManager : MonoBehaviour
         infoPanel.SetActive(show);
     }
 
-    public void SetInfoPanel(BuildingData data)
+    public void SetInfoPanel(UnitData data)
     {
         if (data.Code != "")
             _infoPanelTitleText.text = data.Code;

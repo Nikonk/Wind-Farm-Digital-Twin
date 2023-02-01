@@ -8,23 +8,16 @@ public enum BuildingPlacement
     FIXED
 }
 
-public class Building
+public class Building : Unit
 {
-    private BuildingData _data;
-    private Transform _transform;
-    private int _currentHealth;
     private BuildingPlacement _placement;
     private List<Material> _materials;
     private BuildingManager _buildingManager;
 
-    public Building(BuildingData data)
+    public Building(BuildingData data) : this(data, new List<ResourceValue>() { }) { }
+    public Building(BuildingData data, List<ResourceValue> production) : 
+        base(data, production)
     {
-        _data = data;
-        _currentHealth = data.HP;
-
-        GameObject g = GameObject.Instantiate(data.Prefab) as GameObject;
-        _transform = g.transform;
-        _placement = BuildingPlacement.VALID;
         _materials = new List<Material>();
         Renderer[] renderers = _transform.GetComponentsInChildren<Renderer>();
         foreach (Renderer rend in renderers)
@@ -35,13 +28,9 @@ public class Building
                 _materials.Add(new Material(material));
             }
         }
-        _buildingManager = g.GetComponent<BuildingManager>();
+        _buildingManager = _transform.GetComponent<BuildingManager>();
+        _placement = BuildingPlacement.VALID;
         SetMaterials();
-    }
-
-    public void SetPosition(Vector3 position)
-    {
-        _transform.position = position;
     }
 
     public void SetMaterials() { SetMaterials(_placement); }
@@ -82,16 +71,11 @@ public class Building
         }
     }
 
-    public void Place()
+    public override void Place()
     {
+        base.Place();
         _placement = BuildingPlacement.FIXED;
         SetMaterials();
-        _transform.GetComponent<BoxCollider>().isTrigger = false;
-
-        foreach (ResourceValue resource in _data.Cost)
-        {
-            Globals.GAME_RESOURCES[resource.code].AddAmount(-resource.amount);
-        }
     }
 
     public void CheckValidPlacement()
@@ -101,17 +85,7 @@ public class Building
             ? BuildingPlacement.VALID
             : BuildingPlacement.INVALID;
     }
-
-    public bool CanBuy()
-    {
-        return _data.CanBuy();
-    }
-
-    public string Code { get => _data.Code; }
-    public Transform Transform { get => _transform; }
-    public int HP { get => _currentHealth; 
-                    set => _currentHealth = value; }
-    public int MaxHP { get => _data.HP; }
+    
     public int DataIndex
     {
         get {

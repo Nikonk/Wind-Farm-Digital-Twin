@@ -12,7 +12,7 @@ public class BuildingPlacer : MonoBehaviour
     {
         if (_placedBuilding != null)
         {
-            if (Input.GetKeyUp(KeyCode.Escape))
+            if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.Mouse1))
             {
                 _CancelPlacedBuilding();
                 return;
