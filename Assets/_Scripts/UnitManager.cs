@@ -7,7 +7,7 @@ public class UnitManager : MonoBehaviour
     public GameObject selectionCircle;
 
     protected BoxCollider _collider;
-    protected virtual Unit Unit { get; set; }
+    public virtual Unit Unit { get; set; }
 
     private void OnMouseDown()
     {
@@ -30,6 +30,7 @@ public class UnitManager : MonoBehaviour
         if (Globals.SELECTED_UNITS.Contains(this)) return;
         Globals.SELECTED_UNITS.Add(this);
         selectionCircle.SetActive(true);
+        EventManager.TriggerTypedEvent("SelectUnit", new CustomEventData(Unit));
     }
 
     public void Select() { Select(false, false); }
@@ -62,6 +63,7 @@ public class UnitManager : MonoBehaviour
         if (!Globals.SELECTED_UNITS.Contains(this)) return;
         Globals.SELECTED_UNITS.Remove(this);
         selectionCircle.SetActive(false);
+        EventManager.TriggerTypedEvent("DeselectUnit", new CustomEventData(Unit));
     }
 
     protected virtual bool IsActive()

@@ -20,6 +20,20 @@ public class UIManager : MonoBehaviour
     private TMP_Text _infoPanelDescriptionText;
     private Transform _infoPanelResourcesCostParent;
 
+    public Transform selectedUnitsListParent;
+    public GameObject selectedUnitInfoPrefab;
+
+    public Transform selectionGroupsParent;
+
+    public GameObject gameResourceCostPrefab;
+    public GameObject selectedUnitMenu;
+    private RectTransform _selectedUnitContentRectTransform;
+    private RectTransform _selectedUnitButtonsRectTransform;
+    private TMP_Text _selectedUnitTitleText;
+    private TMP_Text _selectedUnitLevelText;
+    private Transform _selectedUnitResourcesProductionParent;
+    private Transform _selectedUnitActionButtonsParent;
+
     private void Awake()
     {
         _buildingPlacer = GetComponent<BuildingPlacer>();
@@ -59,6 +73,25 @@ public class UIManager : MonoBehaviour
         _infoPanelDescriptionText = infoPanelTransform.Find("Content/Description").GetComponent<TMP_Text>();
         _infoPanelResourcesCostParent = infoPanelTransform.Find("Content/ResourcesCost");
         _ShowInfoPanel(false);
+
+        for (int i = 1; i <= 9; i++)
+            ToggleSelectionGroupButton(i, false);
+        
+        Transform selectedUnitMenuTransform = selectedUnitMenu.transform;
+        _selectedUnitContentRectTransform = selectedUnitMenuTransform
+            .Find("Content").GetComponent<RectTransform>();
+        _selectedUnitButtonsRectTransform = selectedUnitMenuTransform
+            .Find("Buttons").GetComponent<RectTransform>();
+        _selectedUnitTitleText = selectedUnitMenuTransform
+            .Find("Content/Title").GetComponent<TMP_Text>();
+        _selectedUnitLevelText = selectedUnitMenuTransform
+            .Find("Content/Level").GetComponent<TMP_Text>();
+        _selectedUnitResourcesProductionParent = selectedUnitMenuTransform
+            .Find("Content/ResourcesProduction");
+        _selectedUnitActionButtonsParent = selectedUnitMenuTransform
+            .Find("Buttons/SpecificActions");
+        
+        _ShowSelectedUnitMenu(false);
     }
 
     private void OnEnable()
@@ -67,6 +100,8 @@ public class UIManager : MonoBehaviour
         EventManager.AddListener("CheckBuildingButtons", _OnCheckBuildingButtons);
         EventManager.AddTypedListener("HoverBuildingButton", _OnHoverBuildingButton);
         EventManager.AddListener("UnhoverBuildingButton", _OnUnhoverBuildingButton);
+        EventManager.AddTypedListener("SelectUnit", _OnSelectUnit);
+        EventManager.AddTypedListener("DeselectUnit", _OnDeselectUnit);
     }
 
     private void OnDisable()
@@ -75,6 +110,8 @@ public class UIManager : MonoBehaviour
         EventManager.RemoveListener("CheckBuildingButtons", _OnCheckBuildingButtons);
         EventManager.RemoveTypedListener("HoverBuildingButton", _OnHoverBuildingButton);
         EventManager.RemoveListener("UnhoverBuildingButton", _OnUnhoverBuildingButton);
+        EventManager.RemoveTypedListener("SelectUnit", _OnSelectUnit);
+        EventManager.RemoveTypedListener("DeselectUnit", _OnDeselectUnit);
     }
 
     private void _AddBuildingButtonListener(Button b, int i)
@@ -114,9 +151,92 @@ public class UIManager : MonoBehaviour
         _ShowInfoPanel(false);
     }
 
+    private void _OnSelectUnit(CustomEventData data)
+    {
+        _AddSelectedUnitToUIList(data.unit);
+        _SetSelectedUnitMenu(data.unit);
+        _ShowSelectedUnitMenu(true);
+    }
+
+    private void _OnDeselectUnit(CustomEventData data)
+    {
+        _RemoveSelectedUnitFromUIList(data.unit.Code);
+        if (Globals.SELECTED_UNITS.Count == 0)
+            _ShowSelectedUnitMenu(false);
+        else
+            _SetSelectedUnitMenu(Globals.SELECTED_UNITS[Globals.SELECTED_UNITS.Count - 1].Unit);
+    }
+
     private void _ShowInfoPanel(bool show)
     {
         infoPanel.SetActive(show);
+    }
+
+    private void _AddSelectedUnitToUIList(Unit unit)
+    {
+        Transform alreadyInstantiatedChild = selectedUnitsListParent.Find(unit.Code);
+        if (alreadyInstantiatedChild != null)
+        {
+            TMP_Text t = alreadyInstantiatedChild.Find("Count").GetComponent<TMP_Text>();
+            int count = int.Parse(t.text);
+            t.text = (count + 1).ToString();
+        }
+        else
+        {
+            GameObject g = GameObject.Instantiate(
+                selectedUnitInfoPrefab, selectedUnitsListParent);
+            g.name = unit.Code;
+            Transform t = g.transform;
+            t.Find("Count").GetComponent<TMP_Text>().text = "1";
+            t.Find("UnitType").GetComponent<TMP_Text>().text = unit.Data.UnitName;
+        }
+    }
+
+    private void _RemoveSelectedUnitFromUIList(string code)
+    {
+        Transform listItem = selectedUnitsListParent.Find(code);
+        if (listItem == null) return;
+        TMP_Text t = listItem.Find("Count").GetComponent<TMP_Text>();
+        int count = int.Parse(t.text);
+        count -= 1;
+        if (count == 0)
+            DestroyImmediate(listItem.gameObject);
+        else
+            t.text = count.ToString();
+    }
+
+    private void _SetSelectedUnitMenu(Unit unit)
+    {
+        // int contentHeight = 60 + unit.Production.Count * 16;
+        // _selectedUnitContentRectTransform.sizeDelta = new Vector2(64, contentHeight);
+        
+        // _selectedUnitButtonsRectTransform.anchoredPosition = new Vector2(0, -contentHeight - 20);
+        // _selectedUnitButtonsRectTransform.sizeDelta = new Vector2(70, Screen.height - contentHeight - 20);
+
+        _selectedUnitTitleText.text = unit.Data.UnitName;
+        _selectedUnitLevelText.text = $"Level {unit.Level}";
+
+        foreach (Transform child in _selectedUnitResourcesProductionParent)
+            Destroy(child.gameObject);
+        
+        if (unit.Production.Count > 0)
+        {
+            GameObject g;
+            Transform t;
+            foreach (ResourceValue resource in unit.Production)
+            {
+                g = GameObject.Instantiate(
+                    gameResourceCostPrefab, _selectedUnitResourcesProductionParent);
+                t = g.transform;
+                t.Find("Text").GetComponent<TMP_Text>().text = $"+{resource.amount}";
+            }
+        }
+    }
+
+    private void _ShowSelectedUnitMenu(bool show)
+    {
+        selectedUnitMenu.SetActive(show);
+        buildingMenu.gameObject.SetActive(!show);
     }
 
     public void SetInfoPanel(UnitData data)
@@ -143,5 +263,10 @@ public class UIManager : MonoBehaviour
                     t.Find("Text").GetComponent<TMP_Text>().color = invalidTextColor;
             }
         }
+    }
+
+    public void ToggleSelectionGroupButton(int groupIndex, bool on)
+    {
+        selectionGroupsParent.Find(groupIndex.ToString()).gameObject.SetActive(on);
     }
 }
