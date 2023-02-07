@@ -26,12 +26,12 @@ public class UnitManager : MonoBehaviour
         Unit = unit;
     }
 
-    private void _SelectUnit()
+    private void _SelectUtil()
     {
         if (Globals.SELECTED_UNITS.Contains(this)) return;
         Globals.SELECTED_UNITS.Add(this);
         selectionCircle.SetActive(true);
-        EventManager.TriggerTypedEvent("SelectUnit", new CustomEventData(Unit));
+        EventManager.TriggerEvent("SelectUnit", Unit);
     }
 
     public void Select() { Select(false, false); }
@@ -39,7 +39,7 @@ public class UnitManager : MonoBehaviour
     {
         if (!singleClick)
         {
-            _SelectUnit();
+            _SelectUtil();
             return;
         }
 
@@ -48,12 +48,12 @@ public class UnitManager : MonoBehaviour
             List<UnitManager> selectedUnits = new List<UnitManager>(Globals.SELECTED_UNITS);
             foreach (UnitManager um in selectedUnits)
                 um.Deselect();
-            _SelectUnit();
+            _SelectUtil();
         }
         else
         {
             if (!Globals.SELECTED_UNITS.Contains(this))
-                _SelectUnit();
+                _SelectUtil();
             else
                 Deselect();
         }
@@ -64,7 +64,7 @@ public class UnitManager : MonoBehaviour
         if (!Globals.SELECTED_UNITS.Contains(this)) return;
         Globals.SELECTED_UNITS.Remove(this);
         selectionCircle.SetActive(false);
-        EventManager.TriggerTypedEvent("DeselectUnit", new CustomEventData(Unit));
+        EventManager.TriggerEvent("DeselectUnit", Unit);
     }
 
     protected virtual bool IsActive()

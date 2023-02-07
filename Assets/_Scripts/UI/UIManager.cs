@@ -102,20 +102,20 @@ public class UIManager : MonoBehaviour
     {
         EventManager.AddListener("UpdateResourceTexts", _OnUpdateResourceTexts);
         EventManager.AddListener("CheckBuildingButtons", _OnCheckBuildingButtons);
-        EventManager.AddTypedListener("HoverBuildingButton", _OnHoverBuildingButton);
+        EventManager.AddListener("HoverBuildingButton", _OnHoverBuildingButton);
         EventManager.AddListener("UnhoverBuildingButton", _OnUnhoverBuildingButton);
-        EventManager.AddTypedListener("SelectUnit", _OnSelectUnit);
-        EventManager.AddTypedListener("DeselectUnit", _OnDeselectUnit);
+        EventManager.AddListener("SelectUnit", _OnSelectUnit);
+        EventManager.AddListener("DeselectUnit", _OnDeselectUnit);
     }
 
     private void OnDisable()
     {
         EventManager.RemoveListener("UpdateResourceTexts", _OnUpdateResourceTexts);
         EventManager.RemoveListener("CheckBuildingButtons", _OnCheckBuildingButtons);
-        EventManager.RemoveTypedListener("HoverBuildingButton", _OnHoverBuildingButton);
+        EventManager.RemoveListener("HoverBuildingButton", _OnHoverBuildingButton);
         EventManager.RemoveListener("UnhoverBuildingButton", _OnUnhoverBuildingButton);
-        EventManager.RemoveTypedListener("SelectUnit", _OnSelectUnit);
-        EventManager.RemoveTypedListener("DeselectUnit", _OnDeselectUnit);
+        EventManager.RemoveListener("SelectUnit", _OnSelectUnit);
+        EventManager.RemoveListener("DeselectUnit", _OnDeselectUnit);
     }
 
     private void _AddBuildingButtonListener(Button b, int i)
@@ -144,9 +144,9 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private void _OnHoverBuildingButton(CustomEventData data)
+    private void _OnHoverBuildingButton(object data)
     {
-        SetInfoPanel(data.unitData);
+        SetInfoPanel((UnitData)data);
         _ShowInfoPanel(true);
     }
 
@@ -155,16 +155,18 @@ public class UIManager : MonoBehaviour
         _ShowInfoPanel(false);
     }
 
-    private void _OnSelectUnit(CustomEventData data)
+    private void _OnSelectUnit(object data)
     {
-        _AddSelectedUnitToUIList(data.unit);
-        _SetSelectedUnitMenu(data.unit);
+        Unit unit = (Unit)data;
+        _AddSelectedUnitToUIList(unit);
+        _SetSelectedUnitMenu(unit);
         _ShowSelectedUnitMenu(true);
     }
 
-    private void _OnDeselectUnit(CustomEventData data)
+    private void _OnDeselectUnit(object data)
     {
-        _RemoveSelectedUnitFromUIList(data.unit.Code);
+        Unit unit = (Unit)data;
+        _RemoveSelectedUnitFromUIList(unit.Code);
         if (Globals.SELECTED_UNITS.Count == 0)
             _ShowSelectedUnitMenu(false);
         else
