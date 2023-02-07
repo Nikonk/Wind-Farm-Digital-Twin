@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 784e9cd559443d448b72d5bef650a853, type: 3}
+  m_Name: Consumer
+  m_EditorClassIdentifier: 
+  _code: Consumer
+  _unitName: Consumer
+  _description: Buys energy with money
+  _healthpoints: 100
+  _prefab: {fileID: 1334387151301947658, guid: 319396e976d128d4399fc214d6bfdb8f, type: 3}
+  _cost:
+  - code: money
+    amount: 50
+  _skills:
+  - {fileID: 11400000, guid: 29e0ce80771e4c840a7a7f661da93696, type: 2}

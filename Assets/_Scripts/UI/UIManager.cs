@@ -34,6 +34,10 @@ public class UIManager : MonoBehaviour
     private Transform _selectedUnitResourcesProductionParent;
     private Transform _selectedUnitActionButtonsParent;
 
+    [SerializeField]
+    private GameObject _unitSkillButtonPrefab;
+    private Unit _selectedUnit;
+
     private void Awake()
     {
         _buildingPlacer = GetComponent<BuildingPlacer>();
@@ -205,20 +209,19 @@ public class UIManager : MonoBehaviour
             t.text = count.ToString();
     }
 
+    private void _AddUnitSkillButtonListener(Button b, int i)
+    {
+        b.onClick.AddListener(() => _selectedUnit.TriggerSkill(i));
+    }
+
     private void _SetSelectedUnitMenu(Unit unit)
     {
-        // int contentHeight = 60 + unit.Production.Count * 16;
-        // _selectedUnitContentRectTransform.sizeDelta = new Vector2(64, contentHeight);
-        
-        // _selectedUnitButtonsRectTransform.anchoredPosition = new Vector2(0, -contentHeight - 20);
-        // _selectedUnitButtonsRectTransform.sizeDelta = new Vector2(70, Screen.height - contentHeight - 20);
-
+        _selectedUnit = unit;
         _selectedUnitTitleText.text = unit.Data.UnitName;
         _selectedUnitLevelText.text = $"Level {unit.Level}";
 
         foreach (Transform child in _selectedUnitResourcesProductionParent)
             Destroy(child.gameObject);
-        
         if (unit.Production.Count > 0)
         {
             GameObject g;
@@ -229,6 +232,26 @@ public class UIManager : MonoBehaviour
                     gameResourceCostPrefab, _selectedUnitResourcesProductionParent);
                 t = g.transform;
                 t.Find("Text").GetComponent<TMP_Text>().text = $"+{resource.amount}";
+            }
+        }
+
+        foreach (Transform child in _selectedUnitActionButtonsParent)
+            Destroy(child.gameObject);
+        if (unit.SkillManagers.Count > 0)
+        {
+            GameObject g;
+            Transform t;
+            Button b;
+            for (int i = 0; i < unit.SkillManagers.Count; i++)
+            {
+                g = GameObject.Instantiate(
+                    _unitSkillButtonPrefab, _selectedUnitActionButtonsParent);
+                t = g.transform;
+                b = g.GetComponent<Button>();
+                unit.SkillManagers[i].SetButton(b);
+                t.Find("Text").GetComponent<TMP_Text>().text =
+                    unit.SkillManagers[i].Skill.SkillName;
+                _AddUnitSkillButtonListener(b, i);
             }
         }
     }

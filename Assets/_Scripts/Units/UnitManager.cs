@@ -4,7 +4,8 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider))]
 public class UnitManager : MonoBehaviour
 {
-    public GameObject selectionCircle;
+    [SerializeField]
+    private GameObject selectionCircle;
 
     protected BoxCollider _collider;
     public virtual Unit Unit { get; set; }
@@ -25,7 +26,7 @@ public class UnitManager : MonoBehaviour
         Unit = unit;
     }
 
-    private void _SelectUtil()
+    private void _SelectUnit()
     {
         if (Globals.SELECTED_UNITS.Contains(this)) return;
         Globals.SELECTED_UNITS.Add(this);
@@ -38,7 +39,7 @@ public class UnitManager : MonoBehaviour
     {
         if (!singleClick)
         {
-            _SelectUtil();
+            _SelectUnit();
             return;
         }
 
@@ -47,12 +48,12 @@ public class UnitManager : MonoBehaviour
             List<UnitManager> selectedUnits = new List<UnitManager>(Globals.SELECTED_UNITS);
             foreach (UnitManager um in selectedUnits)
                 um.Deselect();
-            _SelectUtil();
+            _SelectUnit();
         }
         else
         {
             if (!Globals.SELECTED_UNITS.Contains(this))
-                _SelectUtil();
+                _SelectUnit();
             else
                 Deselect();
         }

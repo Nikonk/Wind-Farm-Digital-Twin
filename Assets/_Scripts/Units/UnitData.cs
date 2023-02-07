@@ -16,6 +16,8 @@ public class UnitData : ScriptableObject
     private GameObject _prefab;
     [SerializeField]
     private List<ResourceValue> _cost;
+    [SerializeField]
+    private List<SkillData> _skills = new List<SkillData>();
 
     public bool CanBuy()
     {
@@ -35,4 +37,5 @@ public class UnitData : ScriptableObject
     public int HP { get => _healthpoints; }
     public GameObject Prefab { get => _prefab; }
     public List<ResourceValue> Cost { get => _cost; }
+    public List<SkillData> Skills { get => _skills; }
 }

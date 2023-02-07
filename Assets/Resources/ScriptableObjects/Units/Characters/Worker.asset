@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60ad06811582c424b99183ae30740e1f, type: 3}
+  m_Name: Worker
+  m_EditorClassIdentifier: 
+  _code: Worker
+  _unitName: Worker
+  _description: Building
+  _healthpoints: 10
+  _prefab: {fileID: 7451375258439458853, guid: 223603fe36cd7dd4796729e66d7c84bd, type: 3}
+  _cost:
+  - code: money
+    amount: 30
+  _skills: []
