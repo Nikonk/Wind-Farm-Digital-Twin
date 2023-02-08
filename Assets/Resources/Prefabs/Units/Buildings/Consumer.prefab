@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4072673742285562899}
   - component: {fileID: 6533214691119009161}
   - component: {fileID: -2839386061827589400}
+  - component: {fileID: 8008706321899691589}
   m_Layer: 0
   m_Name: Consumer
   m_TagString: Unit
@@ -80,6 +81,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectionCircle: {fileID: 8522312075212655072}
+--- !u!208 &8008706321899691589
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1334387151301947658}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 1.5, y: 1.5, z: 1.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &4030090929297975647
 GameObject:
   m_ObjectHideFlags: 0

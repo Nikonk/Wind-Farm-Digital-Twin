@@ -1,10 +1,13 @@
 using System.Collections.Generic;
+using UnityEngine.AI;
 
 public class Globals 
 {
     public static int TERRAIN_LAYER_MASK = 1 << 8;
 
     public static BuildingData[] BUILDING_DATA;
+
+    public static NavMeshSurface NAV_MESH_SURFACE;
 
     public static Dictionary<string, GameResource> GAME_RESOURCES =
         new Dictionary<string, GameResource>()
@@ -15,4 +18,9 @@ public class Globals
     };
 
     public static List<UnitManager> SELECTED_UNITS = new List<UnitManager>();
+
+    public static void UpdateNavMeshSurface()
+    {
+        NAV_MESH_SURFACE.UpdateNavMesh(NAV_MESH_SURFACE.navMeshData);
+    }
 }

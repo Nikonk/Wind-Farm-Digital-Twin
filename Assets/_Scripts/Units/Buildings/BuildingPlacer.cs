@@ -60,11 +60,18 @@ public class BuildingPlacer : MonoBehaviour
     {
         _placedBuilding.Place();
         if (_placedBuilding.CanBuy())
+        {
             _PreparePlacedBuilding(_placedBuilding.DataIndex);
+        }
         else
+        {
+            EventManager.TriggerEvent("PlaceBuildingOff");
             _placedBuilding = null;
+        }
         EventManager.TriggerEvent("UpdateResourceTexts");
         EventManager.TriggerEvent("CheckBuildingButtons");
+
+        Globals.UpdateNavMeshSurface();
     }
 
     private void _CancelPlacedBuilding()

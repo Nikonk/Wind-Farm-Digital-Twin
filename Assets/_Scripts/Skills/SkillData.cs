@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public enum SkillType
 {
@@ -37,7 +38,8 @@ public class SkillData : ScriptableObject
                     source.transform.position.z - coll.size.z * 0.7f
                 );
                 Character c = new Character( (CharacterData)_unitReference );
-                c.Transform.position = instantiationPosition;
+                // c.Transform.position = instantiationPosition;
+                c.Transform.GetComponent<NavMeshAgent>().Warp(instantiationPosition);
                 c.Transform.GetComponent<CharacterManager>().Initialize(c);
 
                 break;
