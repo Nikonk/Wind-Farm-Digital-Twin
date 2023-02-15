@@ -20,3 +20,5 @@ MonoBehaviour:
   _cost:
   - code: money
     amount: 100
+  _skills: []
+  _fieldOfView: 20

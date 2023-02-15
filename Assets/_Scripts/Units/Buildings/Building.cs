@@ -73,9 +73,9 @@ public class Building : Unit
 
     public override void Place()
     {
-        base.Place();
         _placement = BuildingPlacement.FIXED;
         SetMaterials();
+        base.Place();
     }
 
     public void CheckValidPlacement()

@@ -135,6 +135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectionCircle: {fileID: 3407823423754338678}
+  fov: {fileID: 0}
 --- !u!208 &1513280636343343878
 NavMeshObstacle:
   m_ObjectHideFlags: 0

@@ -22,3 +22,4 @@ MonoBehaviour:
     amount: 50
   _skills:
   - {fileID: 11400000, guid: 29e0ce80771e4c840a7a7f661da93696, type: 2}
+  _fieldOfView: 20

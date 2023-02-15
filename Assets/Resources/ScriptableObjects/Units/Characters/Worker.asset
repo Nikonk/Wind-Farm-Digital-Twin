@@ -21,3 +21,4 @@ MonoBehaviour:
   - code: money
     amount: 30
   _skills: []
+  _fieldOfView: 20
