@@ -1,9 +1,30 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Parameters", menuName = "Scriptable Objects/Game Parameters", order = 10)]
-public class GameParameters : ScriptableObject
+public abstract class GameParameters : ScriptableObject
 {
-    public bool enableDayAndNightCycle;
-    public float dayLengthInSeconds;
-    public float dayInitialRatio;
+    public abstract string GetParametersName();
+
+    [SerializeField]
+    protected List<string> _fieldsToShowInGame;
+
+    public bool ShowsField(string fieldName)
+    {
+        if (_fieldsToShowInGame == null)
+            return false;
+        return _fieldsToShowInGame.Contains(fieldName);
+    }
+
+    public void ToggleShowField(string fieldName)
+    {
+        if (_fieldsToShowInGame == null)
+            _fieldsToShowInGame = new List<string>();
+
+        if (ShowsField(fieldName))
+            _fieldsToShowInGame.Remove(fieldName);
+        else
+            _fieldsToShowInGame.Add(fieldName);
+    }
+
+    public List<string> FieldsToShowInGame => _fieldsToShowInGame;
 }

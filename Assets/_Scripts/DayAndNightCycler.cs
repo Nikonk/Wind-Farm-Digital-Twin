@@ -3,17 +3,15 @@ using UnityEngine;
 
 public class DayAndNightCycler : MonoBehaviour
 {
-    public GameParameters gameParameters;
+    public GameGlobalParameters gameParameters;
     public Transform starsTransform;
 
     private float _starsRefreshRate;
     private float _rotationAngleStep;
     private Vector3 _rotationAxis;
 
-    private void Awake()
-    {
-        this.enabled = gameParameters.enableDayAndNightCycle;
-        
+    private void Start()
+    {        
         starsTransform.rotation = Quaternion.Euler(
             gameParameters.dayInitialRatio * 360f,
             -30f,
@@ -22,10 +20,7 @@ public class DayAndNightCycler : MonoBehaviour
         _starsRefreshRate = 0.1f;
         _rotationAxis = starsTransform.right;
         _rotationAngleStep = 360f * _starsRefreshRate / gameParameters.dayLengthInSeconds;
-    }
-
-    private void Start()
-    {
+        
         StartCoroutine("_UpdateStars");
     }
 
