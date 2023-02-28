@@ -14,6 +14,8 @@ public class UnitsSelection : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.instance.gameIsPaused) return;
+
         if (EventSystem.current.IsPointerOverGameObject()) return;
 
         if (Input.GetMouseButtonDown(0))    

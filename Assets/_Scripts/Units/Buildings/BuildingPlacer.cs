@@ -10,6 +10,8 @@ public class BuildingPlacer : MonoBehaviour
 
     private void Update()
     {
+        if (GameManager.instance.gameIsPaused) return;
+
         if (_placedBuilding != null)
         {
             if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.Mouse1))
@@ -51,7 +53,6 @@ public class BuildingPlacer : MonoBehaviour
         Building building = new Building(
             Globals.BUILDING_DATA[buildingDataIndex]
         );
-        building.Transform.GetComponent<BuildingManager>().Initialize(building);
         _placedBuilding = building;
         _lastPlacementPosition = Vector3.zero;
     }

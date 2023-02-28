@@ -32,6 +32,8 @@ public class Unit
             sm.Initialize(skill, g);
             _skillManagers.Add(sm);
         }
+
+        _transform.GetComponent<UnitManager>().Initialize(this);
     }
 
     public void SetPosition(Vector3 position)
