@@ -4,20 +4,14 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Unit", menuName = "Scriptable Objects/Unit", order = 1)]
 public class UnitData : ScriptableObject
 {
-    [SerializeField]
-    private string _code;
-    [SerializeField]
-    private string _unitName;
-    [SerializeField]
-    private string _description;
-    [SerializeField]
-    private int _healthpoints;
-    [SerializeField]
-    private GameObject _prefab;
-    [SerializeField]
-    private List<ResourceValue> _cost;
-    [SerializeField]
-    private List<SkillData> _skills = new List<SkillData>();
+    [SerializeField] private string _code;
+    [SerializeField] private string _unitName;
+    [SerializeField] private string _description;
+    [SerializeField] private int _healthpoints;
+    [SerializeField] private GameObject _prefab;
+    [SerializeField] private List<ResourceValue> _cost;
+    [SerializeField] private List<SkillData> _skills = new List<SkillData>();
+    [SerializeField] private InGameResource[] _canProduce;
 
     public bool CanBuy()
     {
@@ -38,4 +32,5 @@ public class UnitData : ScriptableObject
     public GameObject Prefab { get => _prefab; }
     public List<ResourceValue> Cost { get => _cost; }
     public List<SkillData> Skills { get => _skills; }
+    public InGameResource[] CanProduce { get => _canProduce; }
 }

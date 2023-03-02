@@ -8,5 +8,8 @@ public class GameGlobalParameters : GameParameters
     public float dayLengthInSeconds;
     public float dayInitialRatio;
 
+    [Header("Units production")]
+    public int baseEnergyProduction;
+
     public override string GetParametersName() => "Global";
 }

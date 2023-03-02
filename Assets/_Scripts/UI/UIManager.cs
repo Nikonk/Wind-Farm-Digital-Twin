@@ -1,14 +1,16 @@
-using UnityEngine;
-using UnityEngine.UI;
 using System.Reflection;
 using System.Collections.Generic;
+using System;
+
+using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class UIManager : MonoBehaviour
 {
     
     private BuildingPlacer _buildingPlacer;
-    private Dictionary<string, TMP_Text> _resourceTexts;
+    private Dictionary<InGameResource, TMP_Text> _resourceTexts;
     private Dictionary<string, Button> _buildingButtons;
 
     public Transform buildingMenu;
@@ -29,7 +31,7 @@ public class UIManager : MonoBehaviour
     public GameObject gameResourceCostPrefab;
     public GameObject selectedUnitMenu;
     private RectTransform _selectedUnitContentRectTransform;
-    private RectTransform _selectedUnitButtonsRectTransform;
+    private RectTransform _selectedUnitGlobalButtonsRectTransform;
     private TMP_Text _selectedUnitTitleText;
     private TMP_Text _selectedUnitLevelText;
     private Transform _selectedUnitResourcesProductionParent;
@@ -49,16 +51,21 @@ public class UIManager : MonoBehaviour
     public GameObject togglePrefab;
     private Dictionary<string, GameParameters> _gameParameters;
 
+    [Header("Placed Building Production")]
+    public RectTransform placedBuildingProductionRectTransform;
+
     private void Awake()
     {
         _buildingPlacer = GetComponent<BuildingPlacer>();
-        _resourceTexts = new Dictionary<string, TMP_Text>();
+        _resourceTexts = new Dictionary<InGameResource, TMP_Text>();
 
-        foreach (KeyValuePair<string, GameResource> pair in Globals.GAME_RESOURCES)
+        foreach (KeyValuePair<InGameResource, GameResource> pair in Globals.GAME_RESOURCES)
         {
             GameObject display = Instantiate(gameResourceDisplayPrefab, resourcesUIParent);
-            display.name = pair.Key;
+            display.name = pair.Key.ToString();
             _resourceTexts[pair.Key] = display.transform.Find("Text").GetComponent<TMP_Text>();
+            display.transform.Find("Icon").GetComponent<Image>().sprite = 
+                        Resources.Load<Sprite>($"Textures/GameResources/{pair.Key}");
             _SetResourceText(pair.Key, pair.Value.Amount);
         }
 
@@ -95,8 +102,8 @@ public class UIManager : MonoBehaviour
         Transform selectedUnitMenuTransform = selectedUnitMenu.transform;
         _selectedUnitContentRectTransform = selectedUnitMenuTransform
             .Find("Content").GetComponent<RectTransform>();
-        _selectedUnitButtonsRectTransform = selectedUnitMenuTransform
-            .Find("Buttons").GetComponent<RectTransform>();
+        _selectedUnitGlobalButtonsRectTransform = selectedUnitMenuTransform
+            .Find("GlobalActions").GetComponent<RectTransform>();
         _selectedUnitTitleText = selectedUnitMenuTransform
             .Find("Content/Title").GetComponent<TMP_Text>();
         _selectedUnitLevelText = selectedUnitMenuTransform
@@ -104,7 +111,7 @@ public class UIManager : MonoBehaviour
         _selectedUnitResourcesProductionParent = selectedUnitMenuTransform
             .Find("Content/ResourcesProduction");
         _selectedUnitActionButtonsParent = selectedUnitMenuTransform
-            .Find("Buttons/SpecificActions");
+            .Find("SpecificActions");
         
         _ShowSelectedUnitMenu(false);
 
@@ -115,6 +122,8 @@ public class UIManager : MonoBehaviour
         foreach (GameParameters p in gameParametersList)
             _gameParameters[p.GetParametersName()] = p;
         _SetupGameSettingsPanel();
+
+        placedBuildingProductionRectTransform.gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -125,6 +134,9 @@ public class UIManager : MonoBehaviour
         EventManager.AddListener("UnhoverBuildingButton", _OnUnhoverBuildingButton);
         EventManager.AddListener("SelectUnit", _OnSelectUnit);
         EventManager.AddListener("DeselectUnit", _OnDeselectUnit);
+        EventManager.AddListener("UpdatePlacedBuildingProduction", _OnUpdatePlacedBuildingProduction);
+        EventManager.AddListener("PlaceBuildingOn", _OnPlaceBuildingOn);
+        EventManager.AddListener("PlaceBuildingOff", _OnPlaceBuildingOff);
     }
 
     private void OnDisable()
@@ -135,6 +147,9 @@ public class UIManager : MonoBehaviour
         EventManager.RemoveListener("UnhoverBuildingButton", _OnUnhoverBuildingButton);
         EventManager.RemoveListener("SelectUnit", _OnSelectUnit);
         EventManager.RemoveListener("DeselectUnit", _OnDeselectUnit);
+        EventManager.RemoveListener("UpdatePlacedBuildingProduction", _OnUpdatePlacedBuildingProduction);
+        EventManager.RemoveListener("PlaceBuildingOn", _OnPlaceBuildingOn);
+        EventManager.RemoveListener("PlaceBuildingOff", _OnPlaceBuildingOff);
     }
 
     private void _AddBuildingButtonListener(Button b, int i)
@@ -142,14 +157,14 @@ public class UIManager : MonoBehaviour
         b.onClick.AddListener(() => _buildingPlacer.SelectPlacedBuilding(i));
     }  
 
-    private void _SetResourceText(string resource, int value)  
+    private void _SetResourceText(InGameResource resource, int value)  
     {
         _resourceTexts[resource].text = value.ToString();
     }
 
     private void _OnUpdateResourceTexts()
     {
-        foreach (KeyValuePair<string, GameResource> pair in Globals.GAME_RESOURCES)
+        foreach (KeyValuePair<InGameResource, GameResource> pair in Globals.GAME_RESOURCES)
         {
             _SetResourceText(pair.Key, pair.Value.Amount);
         }
@@ -247,12 +262,14 @@ public class UIManager : MonoBehaviour
         {
             GameObject g;
             Transform t;
-            foreach (ResourceValue resource in unit.Production)
+            foreach (KeyValuePair<InGameResource, int> resource in unit.Production)
             {
                 g = GameObject.Instantiate(
                     gameResourceCostPrefab, _selectedUnitResourcesProductionParent);
                 t = g.transform;
-                t.Find("Text").GetComponent<TMP_Text>().text = $"+{resource.amount}";
+                t.Find("Text").GetComponent<TMP_Text>().text = $"+{resource.Value}";
+                t.Find("Icon").GetComponent<Image>().sprite = 
+                            Resources.Load<Sprite>($"Textures/GameResources/{resource.Key}");                
             }
         }
 
@@ -441,5 +458,48 @@ public class UIManager : MonoBehaviour
         else
             field.SetValue(parameters, change.value);
         EventManager.TriggerEvent($"UpdateGameParameter:{gameParameter}", change.value);
+    }
+
+    private void _OnUpdatePlacedBuildingProduction(object data)
+    {
+        object[] values = (object[])data;
+        Dictionary<InGameResource, int> production = (Dictionary<InGameResource, int>)values[0];
+        Vector3 pos = (Vector3)values[1];
+
+        if (production == null) return;
+
+        foreach (Transform child in placedBuildingProductionRectTransform.gameObject.transform)
+            Destroy(child.gameObject);
+
+        GameObject g;
+        Transform t;
+        foreach (KeyValuePair<InGameResource, int> pair in production)
+        {
+            g = GameObject.Instantiate(
+                gameResourceCostPrefab,
+                placedBuildingProductionRectTransform.transform);
+            t = g.transform;
+            try
+            {
+                t.Find("Text").GetComponent<TMP_Text>().text = $"+{pair.Value}";
+                t.Find("Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>($"Textures/GameResources/{pair.Key}");
+            }
+            catch(NullReferenceException ex)
+            {
+                Debug.Log(ex.ToString());
+            }
+        }
+
+        placedBuildingProductionRectTransform.sizeDelta = new Vector2(80, 24 * production.Count);
+    }
+
+    private void _OnPlaceBuildingOn()
+    {
+        placedBuildingProductionRectTransform.gameObject.SetActive(true);
+    }
+
+    private void _OnPlaceBuildingOff()
+    {
+        placedBuildingProductionRectTransform.gameObject.SetActive(false);
     }
 }

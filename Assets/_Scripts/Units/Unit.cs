@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+
 using UnityEngine;
 
 public class Unit
@@ -8,7 +10,7 @@ public class Unit
     protected int _currentHealth;
     protected string _uid;
     protected int _level;
-    protected List<ResourceValue> _production;
+    protected Dictionary<InGameResource, int> _production;
     protected List<SkillManager> _skillManagers;
 
     public Unit(UnitData data) : this(data, new List<ResourceValue>() { }) { }
@@ -22,7 +24,7 @@ public class Unit
 
         _uid = System.Guid.NewGuid().ToString();
         _level = 1;
-        _production = production;
+        _production = production.ToDictionary(rv => rv.code, rv => rv.amount);
 
         _skillManagers = new List<SkillManager>();
         SkillManager sm;
@@ -48,6 +50,9 @@ public class Unit
         {
             Globals.GAME_RESOURCES[resource.code].AddAmount(-resource.amount);
         }
+
+        if (_production.Count > 0)
+            GameManager.instance.producingUnits.Add(this);
     }
 
     public bool CanBuy()
@@ -62,13 +67,28 @@ public class Unit
 
     public void ProduceResources()
     {
-        foreach (ResourceValue resource in _production)
-            Globals.GAME_RESOURCES[resource.code].AddAmount(resource.amount);
+        foreach (KeyValuePair<InGameResource, int> resource in _production)
+            Globals.GAME_RESOURCES[resource.Key].AddAmount(resource.Value);
     }
 
     public void TriggerSkill(int index, GameObject target = null)
     {
         _skillManagers[index].Trigger(target);
+    }
+
+    public Dictionary<InGameResource, int> ComputeProduction()
+    {
+        if (_data.CanProduce.Length == 0) return null;
+
+        GameGlobalParameters globalParams = GameManager.instance.gameGlobalParameters;
+        Vector3 pos = _transform.position;
+
+        if (_data.CanProduce.Contains(InGameResource.Energy))
+        {
+            _production[InGameResource.Energy] = globalParams.baseEnergyProduction;
+        }
+
+        return _production;
     }
 
     public UnitData Data { get => _data; }
@@ -78,6 +98,6 @@ public class Unit
     public int MaxHP { get => _data.HP; }
     public string Uid { get => _uid; }
     public int Level { get => _level; }
-    public List<ResourceValue> Production { get => _production; }
+    public Dictionary<InGameResource, int> Production { get => _production; }
     public List<SkillManager> SkillManagers { get => _skillManagers; }
 }

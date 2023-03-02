@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,8 +12,11 @@ public class GameManager : MonoBehaviour
 
     public GameGlobalParameters gameGlobalParameters;
 
-    [HideInInspector]
-    public bool gameIsPaused;
+    [HideInInspector] public bool gameIsPaused;
+
+    [HideInInspector] public List<Unit> producingUnits = new List<Unit>();
+    private float _producingRate = 3f;
+    private Coroutine _producingResourcesCoroutine = null;
 
     private void Awake() 
     {
@@ -28,15 +33,7 @@ public class GameManager : MonoBehaviour
     {
         instance = this;
 
-        GameParameters[] gameParametersList =
-            Resources.LoadAll<GameParameters>("ScriptableObjects/Parameters");
-        foreach (GameParameters parameters in gameParametersList)
-        {
-            Debug.Log(parameters.GetParametersName());
-            Debug.Log("> Fields shown in-game:");
-            foreach (string fieldName in parameters.FieldsToShowInGame)
-                Debug.Log($"    {fieldName}");
-        }
+        _producingResourcesCoroutine = StartCoroutine("_ProducingResources");
     }
 
     private void Update() 
@@ -89,17 +86,35 @@ public class GameManager : MonoBehaviour
     {
         gameIsPaused = true;
         Time.timeScale = 0;
+        if (_producingResourcesCoroutine != null)
+        {
+            StopCoroutine(_producingResourcesCoroutine);
+            _producingResourcesCoroutine = null;
+        }
     }
 
     private void _OnResumeGame()
     {
         gameIsPaused = false;
         Time.timeScale = 1;
+        if (_producingResourcesCoroutine == null)
+            _producingResourcesCoroutine = StartCoroutine("_ProducingResources");
     }
 
     private void _OnUpdateDayAndNightCycle(object data)
     {
         bool dayAndNightIsOn = (bool)data;
         GetComponent<DayAndNightCycler>().enabled = dayAndNightIsOn;
+    }
+
+    private IEnumerator _ProducingResources()
+    {
+        while (true)
+        {
+            foreach (Unit unit in producingUnits)
+                unit.ProduceResources();
+            EventManager.TriggerEvent("UpdateResourceTexts");
+            yield return new WaitForSeconds(_producingRate);
+        }
     }
 }

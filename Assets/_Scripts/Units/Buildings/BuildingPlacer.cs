@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -16,7 +17,8 @@ public class BuildingPlacer : MonoBehaviour
         {
             if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.Mouse1))
             {
-                _CancelPlacedBuilding();
+                _CancelPlacedBuilding();                
+                EventManager.TriggerEvent("PlaceBuildingOff");
                 return;
             }
 
@@ -31,6 +33,11 @@ public class BuildingPlacer : MonoBehaviour
                 if (_lastPlacementPosition != _raycastHit.point)
                 {
                     _placedBuilding.CheckValidPlacement();
+                    Dictionary<InGameResource, int> prod = _placedBuilding.ComputeProduction();
+                    EventManager.TriggerEvent(
+                        "UpdatePlacedBuildingProduction",
+                        new object[] { prod, _raycastHit.point }
+                    );
                 }
                 _lastPlacementPosition = _raycastHit.point;
             }
@@ -55,10 +62,13 @@ public class BuildingPlacer : MonoBehaviour
         );
         _placedBuilding = building;
         _lastPlacementPosition = Vector3.zero;
+        if (_placedBuilding.ComputeProduction() != null)
+            EventManager.TriggerEvent("PlaceBuildingOn");
     }
 
     private void _PlaceBuilding()
     {
+        _placedBuilding.ComputeProduction();
         _placedBuilding.Place();
         if (_placedBuilding.CanBuy())
         {

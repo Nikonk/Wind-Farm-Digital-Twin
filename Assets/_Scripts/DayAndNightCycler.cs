@@ -39,6 +39,7 @@ public class DayAndNightCycler : MonoBehaviour
             starsTransform.Rotate(_rotationAxis, _rotationAngleStep, Space.World);
             yield return new WaitForSeconds(_starsRefreshRate);
         }
+        StopCoroutine(_starsCoroutine);
         _starsCoroutine = null;
     }
 }

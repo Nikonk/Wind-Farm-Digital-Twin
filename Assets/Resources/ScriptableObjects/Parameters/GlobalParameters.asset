@@ -17,3 +17,4 @@ MonoBehaviour:
   enableDayAndNightCycle: 0
   dayLengthInSeconds: 100
   dayInitialRatio: 0.25
+  baseEnergyProduction: 5
