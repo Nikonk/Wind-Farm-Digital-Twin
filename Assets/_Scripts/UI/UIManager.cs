@@ -479,15 +479,8 @@ public class UIManager : MonoBehaviour
                 gameResourceCostPrefab,
                 placedBuildingProductionRectTransform.transform);
             t = g.transform;
-            try
-            {
-                t.Find("Text").GetComponent<TMP_Text>().text = $"+{pair.Value}";
-                t.Find("Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>($"Textures/GameResources/{pair.Key}");
-            }
-            catch(NullReferenceException ex)
-            {
-                Debug.Log(ex.ToString());
-            }
+            t.Find("Text").GetComponent<TMP_Text>().text = $"+{pair.Value}";
+            t.Find("Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>($"Textures/GameResources/{pair.Key}");            
         }
 
         placedBuildingProductionRectTransform.sizeDelta = new Vector2(80, 24 * production.Count);

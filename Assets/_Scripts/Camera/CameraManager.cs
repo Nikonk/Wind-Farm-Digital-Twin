@@ -111,8 +111,8 @@ public class CameraManager : MonoBehaviour
     private void _PrepareMapIndicator()
     {
         GameObject g = new GameObject("MinimapIndicator");
-        _minimapIndicator = g.transform;
         g.layer = 11;
+        _minimapIndicator = g.transform;
         _minimapIndicator.position = Vector3.zero;
         _minimapIndicatorMesh = _CreateMinimapIndicatorMesh();
         MeshFilter mf = g.AddComponent<MeshFilter>();
@@ -187,13 +187,11 @@ public class CameraManager : MonoBehaviour
 
     private void _OnMoveCamera(object data)
     {
-        Vector3 pos = (Vector3) data;
+        Vector3 pos = (Vector3)data;
         float indicatorW = _minimapIndicatorMesh.vertices[1].x - _minimapIndicatorMesh.vertices[0].x;
         float indicatorH = _minimapIndicatorMesh.vertices[2].z - _minimapIndicatorMesh.vertices[0].z;
-        pos.x -= 300;
-        pos.z -= 330;
-        // pos.x -= indicatorW / 2f;
-        // pos.z -= indicatorH / 2f;
+        pos.x -= indicatorW / 2f;
+        pos.z -= indicatorH / 2f;
         Vector3 off = transform.position - Utils.MiddleOfScreenPointToWorld();
         Vector3 newPos = pos + off;
         newPos.y = 100f;
