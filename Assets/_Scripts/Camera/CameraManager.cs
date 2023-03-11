@@ -7,6 +7,7 @@ public class CameraManager : MonoBehaviour
 {
     public float translationSpeed = 60f;
     public float altitude = 40f;
+    public float zoomSpeed = 30f;
 
     private Camera _camera;
     private RaycastHit _hit;
@@ -17,8 +18,6 @@ public class CameraManager : MonoBehaviour
     private int _mouseOnScreenBorder;
 
     private Coroutine _mouseOnScreenCoroutine;
-
-    public float zoomSpeed = 30f;
 
     public Material minimapIndicatorMaterial;
     private float _minimapIndicatorStrokeWidth = 0.1f;
@@ -55,7 +54,7 @@ public class CameraManager : MonoBehaviour
         }
 
         if (Math.Abs(Input.mouseScrollDelta.y) > 0)
-            _Zoom(Input.mouseScrollDelta.y > 0f ? 1 : -1);
+            _Zoom(Input.mouseScrollDelta.y > 0f ? -1 : 1);
     }
 
     private void OnEnable() 
@@ -103,7 +102,7 @@ public class CameraManager : MonoBehaviour
     private void _Zoom(int zoomDir)
     {
         _camera.orthographicSize += zoomDir * Time.deltaTime * zoomSpeed;
-        _camera.orthographicSize = Mathf.Clamp(_camera.orthographicSize, 8f, 26f);
+        _camera.orthographicSize = Mathf.Clamp(_camera.orthographicSize, 8f, 100f);
 
         _ComputeMinimapIndicator(true);
     }

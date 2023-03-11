@@ -11,7 +11,7 @@ public class UnitData : ScriptableObject
     [SerializeField] private GameObject _prefab;
     [SerializeField] private List<ResourceValue> _cost;
     [SerializeField] private List<SkillData> _skills = new List<SkillData>();
-    [SerializeField] private InGameResource[] _canProduce;
+    [SerializeField] private InGameResource[] _canProduce = new InGameResource[0];
 
     public bool CanBuy()
     {

@@ -8,13 +8,13 @@ public static class DataHandler
 
         GameParameters[] gameParametersList = Resources.LoadAll<GameParameters>("ScriptableObjects/Parameters");
         foreach (GameParameters parameters in gameParametersList)
-            parameters.LoadFromFile();
+            parameters.LoadFromFile("GameData");
     }
 
     public static void SaveGameData()
     {
         GameParameters[] gameParametersList = Resources.LoadAll<GameParameters>("ScriptableObjects/Parameters");
         foreach (GameParameters parameters in gameParametersList)
-            parameters.SaveToFile();
+            parameters.SaveToFile("GameData");
     }
 }

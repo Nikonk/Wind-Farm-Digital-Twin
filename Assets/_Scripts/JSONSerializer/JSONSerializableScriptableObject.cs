@@ -9,7 +9,7 @@ public class JSONSerializableScriptableObject : ScriptableObject
     private static string _scriptableObjectsDataDirectory = "ScriptableObjects";
 #endif
 
-    public void SaveToFile()
+    public void SaveToFile(string name)
     {
         string dirPath = Path.Combine(
             Application.persistentDataPath,
@@ -27,7 +27,7 @@ public class JSONSerializableScriptableObject : ScriptableObject
     }
 
 
-    public void LoadFromFile()
+    public void LoadFromFile(string name)
     {
         string filePath = Path.Combine(
             Application.persistentDataPath,
