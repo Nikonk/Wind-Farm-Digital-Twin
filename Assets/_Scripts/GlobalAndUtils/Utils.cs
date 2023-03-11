@@ -17,6 +17,20 @@ public static class Utils
         }
     }
 
+    private static Camera _mainCamera;
+    public static Camera MainCamera
+    {
+        get
+        {
+            if (_mainCamera == null)
+                _mainCamera = Camera.main;
+            return _mainCamera;
+        }
+    }
+
+    private static Ray _ray;
+    private static RaycastHit _hit;
+
     public static void DrawScreenRect(Rect rect, Color color)
     {
         GUI.color = color;
@@ -56,36 +70,62 @@ public static class Utils
     }
 
     public static Vector3 MiddleOfScreenPointToWorld()
-        { return MiddleOfScreenPointToWorld(Camera.main); }
+        { return MiddleOfScreenPointToWorld(MainCamera); }
     public static Vector3 MiddleOfScreenPointToWorld(Camera cam)
     {
-        RaycastHit hit;
-        Ray ray = cam.ScreenPointToRay(0.5f * new Vector2(Screen.width, Screen.height));
+        _ray = cam.ScreenPointToRay(0.5f * new Vector2(Screen.width, Screen.height));
         if (Physics.Raycast(
-                ray,
-                out hit,
+                _ray,
+                out _hit,
                 1000f,
                 Globals.TERRAIN_LAYER_MASK
-            )) return hit.point;
+            )) return _hit.point;
         return Vector3.zero;
     }
 
     public static Vector3[] ScreenCornersToWorldPoints()
-        { return ScreenCornersToWorld(Camera.main); }
-    public static Vector3[] ScreenCornersToWorld(Camera cam)
+        { return ScreenCornersToWorldPoints(MainCamera); }
+    public static Vector3[] ScreenCornersToWorldPoints(Camera cam)
     {
         Vector3[] corners = new Vector3[4];
-        RaycastHit hit;
         for (int i = 0; i < 4; i++)
         {
-            Ray ray = cam.ScreenPointToRay(new Vector2((i % 2) * Screen.width, (int)(i / 2) * Screen.height));
+            // _ray = cam.ScreenPointToRay(new Vector2((i % 2) * Screen.width, (int)(i / 2) * Screen.height));
+            _ray = cam.ScreenPointToRay(new Vector2((i % 2), (i / 2)));
             if (Physics.Raycast(
-                    ray,
-                    out hit,
+                    _ray,
+                    out _hit,
                     1000f,
-                    Globals.FLAT_TERRAIN_LAYER_MASK
-                )) corners[i] = hit.point;
+                    // Globals.FLAT_TERRAIN_LAYER_MASK
+                    Globals.TERRAIN_LAYER_MASK
+                )) corners[i] = _hit.point;
         }
         return corners;
     }
+
+    public static Vector3 ProjectOnTerrain(Vector3 pos)
+    {
+        Vector3 initialPos = pos + Vector3.up * 1000f;
+        if (Physics.Raycast(initialPos, Vector3.down, out _hit, 2000f, Globals.FLAT_TERRAIN_LAYER_MASK))
+            pos = _hit.point;
+        return pos;
+    }
+
+    public static (Vector3, Vector3) GetCameraWorldBounds()
+    {
+        Vector3 bottomLeftCorner = new Vector3(0f, 0f);
+        Vector3 topRightCorner = new Vector3(1f, 1f);
+        float dist = 1000f;
+
+        _ray = MainCamera.ViewportPointToRay(bottomLeftCorner);
+        Vector3 bottomLeft = GameManager.Instance.mapWrapperCollider.Raycast(_ray, out _hit, dist)
+            ? _hit.point : Vector3.zero;
+            
+        _ray = MainCamera.ViewportPointToRay(topRightCorner);
+        Vector3 topRight = GameManager.Instance.mapWrapperCollider.Raycast(_ray, out _hit, dist)
+            ? _hit.point : Vector3.zero;
+
+        return (bottomLeft, topRight);
+    }
+
 }

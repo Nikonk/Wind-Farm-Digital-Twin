@@ -6,7 +6,7 @@ public class Minimap : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     public Vector2 terrainSize;
     private Vector2 _uiSize;
-
+    
     private Vector2 _lastPointerPosition;
     private bool _dragging = false;
 
@@ -26,12 +26,15 @@ public class Minimap : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
         if (delta.magnitude > Mathf.Epsilon)
         {
-            Vector2 uiPos = Input.mousePosition;
+            Vector2 uiPos =
+                (new Vector2(Input.mousePosition.x, Input.mousePosition.y) /
+                GameManager.Instance.canvasScaleFactor);
             Vector3 realPos = new Vector3(
                 uiPos.x / _uiSize.x * terrainSize.x,
                 0f,
                 uiPos.y / _uiSize.y * terrainSize.y
             );
+            realPos = Utils.ProjectOnTerrain(realPos);
             EventManager.TriggerEvent("MoveCamera", realPos);
         }
     }

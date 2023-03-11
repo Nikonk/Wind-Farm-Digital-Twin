@@ -5,7 +5,11 @@ using UnityEngine.AI;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance { get; private set; }
+    public static GameManager Instance { get; private set; }
+
+    [Header("Canvas")]
+    public Canvas canvas;
+    public float canvasScaleFactor;
 
     private Ray _ray;
     private RaycastHit _raycastHit;
@@ -18,8 +22,18 @@ public class GameManager : MonoBehaviour
     private float _producingRate = 3f;
     private Coroutine _producingResourcesCoroutine = null;
 
+    [Header("Minimap")]
+    public Collider mapWrapperCollider;
+
     private void Awake() 
     {
+        if (Instance != null && Instance != this)
+            Destroy(this);
+        else
+            Instance = this;
+
+        canvasScaleFactor = canvas.scaleFactor;
+
         DataHandler.LoadGameData();
         GetComponent<DayAndNightCycler>().enabled = gameGlobalParameters.enableDayAndNightCycle;
 
@@ -31,8 +45,6 @@ public class GameManager : MonoBehaviour
 
     private void Start() 
     {
-        instance = this;
-
         _producingResourcesCoroutine = StartCoroutine("_ProducingResources");
     }
 

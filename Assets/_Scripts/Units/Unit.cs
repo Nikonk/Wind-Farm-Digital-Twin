@@ -52,7 +52,7 @@ public class Unit
         }
 
         if (_production.Count > 0)
-            GameManager.instance.producingUnits.Add(this);
+            GameManager.Instance.producingUnits.Add(this);
     }
 
     public bool CanBuy()
@@ -80,7 +80,7 @@ public class Unit
     {
         if (_data.CanProduce.Length == 0) return null;
 
-        GameGlobalParameters globalParams = GameManager.instance.gameGlobalParameters;
+        GameGlobalParameters globalParams = GameManager.Instance.gameGlobalParameters;
         Vector3 pos = _transform.position;
 
         if (_data.CanProduce.Contains(InGameResource.Energy))
