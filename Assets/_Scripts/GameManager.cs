@@ -22,6 +22,10 @@ public class GameManager : MonoBehaviour
     private float _producingRate = 3f;
     private Coroutine _producingResourcesCoroutine = null;
 
+    [HideInInspector] public List<Unit> consumingUnits = new List<Unit>();
+    private float _consumingRate = 3f;
+    private Coroutine _consumingResourcesCoroutine = null;
+
     [Header("Minimap")]
     public Collider mapWrapperCollider;
 
@@ -46,6 +50,7 @@ public class GameManager : MonoBehaviour
     private void Start() 
     {
         _producingResourcesCoroutine = StartCoroutine("_ProducingResources");
+        _consumingResourcesCoroutine = StartCoroutine("_ConsumingResources");
     }
 
     private void Update() 
@@ -98,10 +103,16 @@ public class GameManager : MonoBehaviour
     {
         gameIsPaused = true;
         Time.timeScale = 0;
+
         if (_producingResourcesCoroutine != null)
         {
             StopCoroutine(_producingResourcesCoroutine);
             _producingResourcesCoroutine = null;
+        }
+        if (_consumingResourcesCoroutine != null)
+        {
+            StopCoroutine(_consumingResourcesCoroutine);
+            _consumingResourcesCoroutine = null;
         }
     }
 
@@ -109,8 +120,11 @@ public class GameManager : MonoBehaviour
     {
         gameIsPaused = false;
         Time.timeScale = 1;
+        
         if (_producingResourcesCoroutine == null)
             _producingResourcesCoroutine = StartCoroutine("_ProducingResources");
+        if (_consumingResourcesCoroutine == null)
+            _consumingResourcesCoroutine = StartCoroutine("_ConsumingResources");
     }
 
     private void _OnUpdateDayAndNightCycle(object data)
@@ -127,6 +141,17 @@ public class GameManager : MonoBehaviour
                 unit.ProduceResources();
             EventManager.TriggerEvent("UpdateResourceTexts");
             yield return new WaitForSeconds(_producingRate);
+        }
+    }
+
+    private IEnumerator _ConsumingResources()
+    {
+        while (true)
+        {
+            foreach (Unit unit in consumingUnits)
+                unit.ConsumeResources();
+            EventManager.TriggerEvent("UpdateResourceTexts");
+            yield return new WaitForSeconds(_consumingRate);
         }
     }
 }

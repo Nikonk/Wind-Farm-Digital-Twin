@@ -18,8 +18,9 @@ MonoBehaviour:
   _healthpoints: 100
   _prefab: {fileID: 1334387151301947658, guid: 319396e976d128d4399fc214d6bfdb8f, type: 3}
   _cost:
-  - code: money
+  - code: 0
     amount: 50
   _skills:
   - {fileID: 11400000, guid: 29e0ce80771e4c840a7a7f661da93696, type: 2}
-  _fieldOfView: 20
+  _canProduce: 
+  _canConsume: 02000000

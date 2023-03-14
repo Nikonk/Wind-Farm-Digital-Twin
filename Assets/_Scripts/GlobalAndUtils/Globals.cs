@@ -21,7 +21,7 @@ public class Globals
         new Dictionary<InGameResource, GameResource>()
     {
         {InGameResource.Money, new GameResource("Money", 1000)},
-        {InGameResource.Wind, new GameResource("Wind", 0)},
+        {InGameResource.Wind, new GameResource("Wind", 11)},
         {InGameResource.Energy, new GameResource("Energy", 0)}
     };
 

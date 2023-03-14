@@ -11,5 +11,8 @@ public class GameGlobalParameters : GameParameters
     [Header("Units production")]
     public int baseEnergyProduction;
 
+    [Header("Units consumption")]
+    public int baseEnergyConsumption;
+
     public override string GetParametersName() => "Global";
 }

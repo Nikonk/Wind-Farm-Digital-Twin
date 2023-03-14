@@ -11,10 +11,11 @@ public class Unit
     protected string _uid;
     protected int _level;
     protected Dictionary<InGameResource, int> _production;
+    protected Dictionary<InGameResource, int> _consumption;
     protected List<SkillManager> _skillManagers;
 
-    public Unit(UnitData data) : this(data, new List<ResourceValue>() { }) { }
-    public Unit(UnitData data, List<ResourceValue> production)
+    public Unit(UnitData data) : this(data, new List<ResourceValue>() { }, new List<ResourceValue>() { }) { }
+    public Unit(UnitData data, List<ResourceValue> production, List<ResourceValue> consumption)
     {
         _data = data;
         _currentHealth = data.HP;
@@ -25,6 +26,7 @@ public class Unit
         _uid = System.Guid.NewGuid().ToString();
         _level = 1;
         _production = production.ToDictionary(rv => rv.code, rv => rv.amount);
+        _consumption = consumption.ToDictionary(rv => rv.code, rv => rv.amount);
 
         _skillManagers = new List<SkillManager>();
         SkillManager sm;
@@ -53,6 +55,9 @@ public class Unit
 
         if (_production.Count > 0)
             GameManager.Instance.producingUnits.Add(this);
+        
+        if (_consumption.Count > 0)
+            GameManager.Instance.consumingUnits.Add(this);
     }
 
     public bool CanBuy()
@@ -71,6 +76,12 @@ public class Unit
             Globals.GAME_RESOURCES[resource.Key].AddAmount(resource.Value);
     }
 
+    public void ConsumeResources()
+    {
+        foreach (KeyValuePair<InGameResource, int> resource in _consumption)
+            Globals.GAME_RESOURCES[resource.Key].AddAmount(-resource.Value);
+    }
+
     public void TriggerSkill(int index, GameObject target = null)
     {
         _skillManagers[index].Trigger(target);
@@ -81,11 +92,24 @@ public class Unit
         if (_data.CanProduce.Length == 0) return null;
 
         GameGlobalParameters globalParams = GameManager.Instance.gameGlobalParameters;
-        Vector3 pos = _transform.position;
 
         if (_data.CanProduce.Contains(InGameResource.Energy))
         {
             _production[InGameResource.Energy] = globalParams.baseEnergyProduction;
+        }
+
+        return _production;
+    }
+
+    public Dictionary<InGameResource, int> ComputeConsumption()
+    {
+        if (_data.CanConsume.Length == 0) return null;
+
+        GameGlobalParameters globalParams = GameManager.Instance.gameGlobalParameters;
+
+        if (_data.CanConsume.Contains(InGameResource.Energy))
+        {
+            _consumption[InGameResource.Energy] = globalParams.baseEnergyConsumption;
         }
 
         return _production;

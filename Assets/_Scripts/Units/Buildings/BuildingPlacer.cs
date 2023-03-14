@@ -69,6 +69,7 @@ public class BuildingPlacer : MonoBehaviour
     private void _PlaceBuilding()
     {
         _placedBuilding.ComputeProduction();
+        _placedBuilding.ComputeConsumption();
         _placedBuilding.Place();
         if (_placedBuilding.CanBuy())
         {

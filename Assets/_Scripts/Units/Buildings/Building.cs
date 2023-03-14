@@ -14,9 +14,9 @@ public class Building : Unit
     private List<Material> _materials;
     private BuildingManager _buildingManager;
 
-    public Building(BuildingData data) : this(data, new List<ResourceValue>() { }) { }
-    public Building(BuildingData data, List<ResourceValue> production) : 
-        base(data, production)
+    public Building(BuildingData data) : this(data, new List<ResourceValue>() { }, new List<ResourceValue>() { }) { }
+    public Building(BuildingData data, List<ResourceValue> production, List<ResourceValue> consumption) : 
+        base(data, production, consumption)
     {
         _materials = new List<Material>();
         Renderer[] renderers = _transform.GetComponentsInChildren<Renderer>();

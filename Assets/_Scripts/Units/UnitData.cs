@@ -12,6 +12,7 @@ public class UnitData : ScriptableObject
     [SerializeField] private List<ResourceValue> _cost;
     [SerializeField] private List<SkillData> _skills = new List<SkillData>();
     [SerializeField] private InGameResource[] _canProduce = new InGameResource[0];
+    [SerializeField] private InGameResource[] _canConsume = new InGameResource[0];
 
     public bool CanBuy()
     {
@@ -33,4 +34,5 @@ public class UnitData : ScriptableObject
     public List<ResourceValue> Cost { get => _cost; }
     public List<SkillData> Skills { get => _skills; }
     public InGameResource[] CanProduce { get => _canProduce; }
+    public InGameResource[] CanConsume { get => _canConsume; }
 }
