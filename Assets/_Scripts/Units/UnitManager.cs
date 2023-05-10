@@ -4,8 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider))]
 public class UnitManager : MonoBehaviour
 {
-    [SerializeField]
-    private GameObject selectionCircle;
+    [SerializeField] private GameObject _selectionCircle;
 
     protected BoxCollider _collider;
     public virtual Unit Unit { get; set; }
@@ -30,7 +29,7 @@ public class UnitManager : MonoBehaviour
     {
         if (Globals.SELECTED_UNITS.Contains(this)) return;
         Globals.SELECTED_UNITS.Add(this);
-        selectionCircle.SetActive(true);
+        _selectionCircle.SetActive(true);
         EventManager.TriggerEvent("SelectUnit", Unit);
     }
 
@@ -63,7 +62,7 @@ public class UnitManager : MonoBehaviour
     {
         if (!Globals.SELECTED_UNITS.Contains(this)) return;
         Globals.SELECTED_UNITS.Remove(this);
-        selectionCircle.SetActive(false);
+        _selectionCircle.SetActive(false);
         EventManager.TriggerEvent("DeselectUnit", Unit);
     }
 

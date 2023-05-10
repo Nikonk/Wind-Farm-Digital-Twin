@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 784e9cd559443d448b72d5bef650a853, type: 3}
+  m_Name: PowerLinePylon
+  m_EditorClassIdentifier: 
+  _code: PowerLinePylon
+  _unitName: Power Line Pylon
+  _description: Power line pylon for transmission electricity
+  _healthpoints: 10
+  _prefab: {fileID: 5617736343257571034, guid: c662dc500d8c955449a6dd9054e15878, type: 3}
+  _cost:
+  - code: 0
+    amount: 10
+  _skills: []
+  _canProduce: 
+  _canConsume: 

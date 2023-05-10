@@ -90,13 +90,11 @@ public static class Utils
         Vector3[] corners = new Vector3[4];
         for (int i = 0; i < 4; i++)
         {
-            // _ray = cam.ScreenPointToRay(new Vector2((i % 2) * Screen.width, (int)(i / 2) * Screen.height));
             _ray = cam.ScreenPointToRay(new Vector2((i % 2), (i / 2)));
             if (Physics.Raycast(
                     _ray,
                     out _hit,
                     1000f,
-                    // Globals.FLAT_TERRAIN_LAYER_MASK
                     Globals.TERRAIN_LAYER_MASK
                 )) corners[i] = _hit.point;
         }

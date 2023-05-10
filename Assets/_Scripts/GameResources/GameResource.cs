@@ -3,10 +3,10 @@ public class GameResource
     private string _name;
     private int _currentAmount;
 
-    public GameResource(string name, int intialAmount)
+    public GameResource(string name, int initialAmount)
     {
         _name = name;
-        _currentAmount = intialAmount;
+        _currentAmount = initialAmount;
     }
 
     public void AddAmount(int value)

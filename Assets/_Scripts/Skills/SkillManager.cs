@@ -4,15 +4,14 @@ using UnityEngine.UI;
 
 public class SkillManager : MonoBehaviour
 {
-    [SerializeField]
-    private SkillData _skill;
+    [SerializeField] private SkillData _skill;
     private GameObject _source;
     private Button _button;
     private bool _ready;
 
     public void Initialize(SkillData skill, GameObject source)
     {
-        this._skill = skill;
+        _skill = skill;
         _source = source;
     }
 

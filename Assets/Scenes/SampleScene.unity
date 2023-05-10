@@ -2985,7 +2985,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buildingMenu: {fileID: 738064029}
-  BuildingButtonPrefab: {fileID: 1593957119608001644, guid: 073a200046ee6654aad8c311a3826be4, type: 3}
+  buildingButtonPrefab: {fileID: 1593957119608001644, guid: 073a200046ee6654aad8c311a3826be4, type: 3}
   resourcesUIParent: {fileID: 775795788}
   gameResourceDisplayPrefab: {fileID: 7708469165643180545, guid: 6b6ad82be7f516840b9a4071135f7231, type: 3}
   infoPanel: {fileID: 1304267681}
@@ -3340,7 +3340,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 828516296}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 757976825}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: DestroySelectedUnit
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &828516296
 MonoBehaviour:
   m_ObjectHideFlags: 0

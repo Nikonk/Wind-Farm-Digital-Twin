@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Collections.Generic;
-using System;
 
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,7 +13,7 @@ public class UIManager : MonoBehaviour
     private Dictionary<string, Button> _buildingButtons;
 
     public Transform buildingMenu;
-    public GameObject BuildingButtonPrefab;
+    public GameObject buildingButtonPrefab;
     public Transform resourcesUIParent;
     public GameObject gameResourceDisplayPrefab;
     
@@ -37,8 +36,7 @@ public class UIManager : MonoBehaviour
     private Transform _selectedUnitResourcesProductionParent;
     private Transform _selectedUnitActionButtonsParent;
 
-    [SerializeField]
-    private GameObject _unitSkillButtonPrefab;
+    [SerializeField] private GameObject _unitSkillButtonPrefab;
     private Unit _selectedUnit;
 
     public GameObject gameSettingsPanel;
@@ -74,7 +72,7 @@ public class UIManager : MonoBehaviour
         {
             BuildingData data = Globals.BUILDING_DATA[i];
             GameObject button = GameObject.Instantiate(
-                BuildingButtonPrefab,
+                buildingButtonPrefab,
                 buildingMenu);
             button.name = data.UnitName;
             button.transform.Find("Text").GetComponent<TMP_Text>().text = data.UnitName;
@@ -494,5 +492,25 @@ public class UIManager : MonoBehaviour
     private void _OnPlaceBuildingOff()
     {
         placedBuildingProductionRectTransform.gameObject.SetActive(false);
+    }
+
+    public void DestroySelectedUnit()
+    {
+        GameObject selectedUnitGO = _selectedUnit.Transform.gameObject;
+        if ( GameManager.Instance.producingUnits.Contains(_selectedUnit) )
+            GameManager.Instance.producingUnits.Remove(_selectedUnit);
+
+        selectedUnitGO.GetComponent<UnitManager>().Deselect();
+
+        foreach (ResourceValue resource in _selectedUnit.Data.Cost)
+        {
+            int destroyCompensation = (int)Mathf.Floor(resource.amount / 2);
+            Globals.GAME_RESOURCES[resource.code].AddAmount(destroyCompensation);
+        }
+
+        _OnUpdateResourceTexts();
+        _OnCheckBuildingButtons();
+
+        Destroy(_selectedUnit.Transform.gameObject);
     }
 }

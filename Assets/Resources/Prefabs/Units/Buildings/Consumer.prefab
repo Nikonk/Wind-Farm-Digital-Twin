@@ -80,7 +80,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c9698e6886bd0446aae929fdea36d8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectionCircle: {fileID: 8522312075212655072}
+  _selectionCircle: {fileID: 8522312075212655072}
 --- !u!208 &8008706321899691589
 NavMeshObstacle:
   m_ObjectHideFlags: 0
