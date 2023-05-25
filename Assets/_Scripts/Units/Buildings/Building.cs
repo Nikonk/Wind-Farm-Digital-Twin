@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public enum BuildingPlacement
@@ -16,8 +17,9 @@ public class Building : Unit
 
     public Building(BuildingData data) : this(data, new List<ResourceValue>() { }, new List<ResourceValue>() { }) { }
     public Building(BuildingData data, List<ResourceValue> production, List<ResourceValue> consumption) : 
-        base(data, production, consumption)
+        base(data)
     {
+        
         _materials = new List<Material>();
         Renderer[] renderers = _transform.GetComponentsInChildren<Renderer>();
         foreach (Renderer rend in renderers)
@@ -76,6 +78,12 @@ public class Building : Unit
         _placement = BuildingPlacement.FIXED;
         SetMaterials();
         base.Place();
+
+        if (_data.IsHasProduction)
+            GameManager.Instance.AddProducingUnits(this);
+        
+        if (_data.IsHasConsumption)
+            GameManager.Instance.AddConsumingUnits(this);
     }
 
     public void CheckValidPlacement()
@@ -84,6 +92,46 @@ public class Building : Unit
         _placement = _buildingManager.CheckPlacement()
             ? BuildingPlacement.VALID
             : BuildingPlacement.INVALID;
+    }
+
+    public Dictionary<InGameResource, int> ComputeProduction()
+    {
+        var resultProduction = new Dictionary<InGameResource, int>();
+        foreach (var productionModel in _data.ProductionModels)
+        {
+            foreach (var production in productionModel.Production)
+            {
+                if (resultProduction.ContainsKey(production.Key))
+                {
+                    resultProduction[production.Key] += production.Value;
+                }
+                else
+                {
+                    resultProduction.Add(production.Key, production.Value);
+                }
+            }
+        }
+        return resultProduction;
+    }
+
+    public Dictionary<InGameResource, int> ComputeConsumption()
+    {
+        var resultConsumption = new Dictionary<InGameResource, int>();
+        foreach (var consumptionModel in _data.ConsumptionModels)
+        {
+            foreach (var consumption in consumptionModel.Consumption)
+            {
+                if (resultConsumption.ContainsKey(consumption.Key))
+                {
+                    resultConsumption[consumption.Key] += consumption.Value;
+                }
+                else
+                {
+                    resultConsumption.Add(consumption.Key, consumption.Value);
+                }
+            }
+        }
+        return resultConsumption;
     }
     
     public int DataIndex

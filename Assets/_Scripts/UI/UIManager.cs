@@ -70,19 +70,19 @@ public class UIManager : MonoBehaviour
         _buildingButtons = new Dictionary<string, Button>();
         for (int i = 0; i < Globals.BUILDING_DATA.Length; i++)
         {
-            BuildingData data = Globals.BUILDING_DATA[i];
             GameObject button = GameObject.Instantiate(
                 buildingButtonPrefab,
                 buildingMenu);
-            button.name = data.UnitName;
-            button.transform.Find("Text").GetComponent<TMP_Text>().text = data.UnitName;
-            button.GetComponent<BuildingButton>().Initialize(Globals.BUILDING_DATA[i]);
+            BuildingData buildingData = Globals.BUILDING_DATA[i];
+            button.name = buildingData.UnitName;
+            button.transform.Find("Text").GetComponent<TMP_Text>().text = buildingData.UnitName;
+            button.GetComponent<BuildingButton>().Initialize(buildingData);
             Button b = button.GetComponent<Button>();
             _AddBuildingButtonListener(b, i);
             
-            _buildingButtons[data.Code] = b;
+            _buildingButtons[buildingData.Code] = b;
             
-            if (!Globals.BUILDING_DATA[i].CanBuy())
+            if (!buildingData.CanBuy())
             {
                 b.interactable = false;
             }
@@ -252,22 +252,24 @@ public class UIManager : MonoBehaviour
     {
         _selectedUnit = unit;
         _selectedUnitTitleText.text = unit.Data.UnitName;
-        _selectedUnitLevelText.text = $"Level {unit.Level}";
 
         foreach (Transform child in _selectedUnitResourcesProductionParent)
             Destroy(child.gameObject);
-        if (unit.Production.Count > 0)
+        if (unit.Data.IsHasProduction)
         {
             GameObject g;
             Transform t;
-            foreach (KeyValuePair<InGameResource, int> resource in unit.Production)
+            foreach (var productionModel in unit.Data.ProductionModels)
             {
-                g = GameObject.Instantiate(
-                    gameResourceCostPrefab, _selectedUnitResourcesProductionParent);
-                t = g.transform;
-                t.Find("Text").GetComponent<TMP_Text>().text = $"+{resource.Value}";
-                t.Find("Icon").GetComponent<Image>().sprite = 
-                            Resources.Load<Sprite>($"Textures/GameResources/{resource.Key}");                
+                foreach (var resource in productionModel.Production)
+                {
+                    g = GameObject.Instantiate(
+                        gameResourceCostPrefab, _selectedUnitResourcesProductionParent);
+                    t = g.transform;
+                    t.Find("Text").GetComponent<TMP_Text>().text = $"+{resource.Value}";
+                    t.Find("Icon").GetComponent<Image>().sprite =
+                                Resources.Load<Sprite>($"Textures/GameResources/{resource.Key}");
+                }
             }
         }
 
@@ -316,6 +318,8 @@ public class UIManager : MonoBehaviour
             {
                 g = GameObject.Instantiate(gameResourceDisplayPrefab, _infoPanelResourcesCostParent);
                 t = g.transform;
+                t.Find("Icon").GetComponent<Image>().sprite =
+                    Resources.Load<Sprite>($"Textures/GameResources/{resource.code}");
                 t.Find("Text").GetComponent<TMP_Text>().text = resource.amount.ToString();
                 Color invalidTextColor = Color.red;
                 if (Globals.GAME_RESOURCES[resource.code].Amount < resource.amount)
@@ -497,15 +501,14 @@ public class UIManager : MonoBehaviour
     public void DestroySelectedUnit()
     {
         GameObject selectedUnitGO = _selectedUnit.Transform.gameObject;
-        if ( GameManager.Instance.producingUnits.Contains(_selectedUnit) )
-            GameManager.Instance.producingUnits.Remove(_selectedUnit);
+        GameManager.Instance.RemoveOperatingUnit(_selectedUnit);
 
         selectedUnitGO.GetComponent<UnitManager>().Deselect();
 
         foreach (ResourceValue resource in _selectedUnit.Data.Cost)
         {
             int destroyCompensation = (int)Mathf.Floor(resource.amount / 2);
-            Globals.GAME_RESOURCES[resource.code].AddAmount(destroyCompensation);
+            Globals.GAME_RESOURCES[resource.code].ChangeAmount(destroyCompensation);
         }
 
         _OnUpdateResourceTexts();

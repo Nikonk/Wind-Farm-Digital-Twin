@@ -227,7 +227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7542c103c40fbc249b70c519effbfeed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectionCircle: {fileID: 6550123260049705574}
+  _selectionCircle: {fileID: 6550123260049705574}
   agent: {fileID: 597146370992964846}
 --- !u!195 &597146370992964846
 NavMeshAgent:

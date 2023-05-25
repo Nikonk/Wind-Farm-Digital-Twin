@@ -18,12 +18,10 @@ public class GameManager : MonoBehaviour
 
     [HideInInspector] public bool gameIsPaused;
 
-    [HideInInspector] public List<Unit> producingUnits = new List<Unit>();
-    private float _producingRate = 3f;
+    private List<Unit> _producingUnits = new List<Unit>();
     private Coroutine _producingResourcesCoroutine = null;
 
-    [HideInInspector] public List<Unit> consumingUnits = new List<Unit>();
-    private float _consumingRate = 3f;
+    private List<Unit> _consumingUnits = new List<Unit>();
     private Coroutine _consumingResourcesCoroutine = null;
 
     [Header("Minimap")]
@@ -133,14 +131,37 @@ public class GameManager : MonoBehaviour
         GetComponent<DayAndNightCycler>().enabled = dayAndNightIsOn;
     }
 
+    public void AddProducingUnits(Unit productionUnit)
+    {
+        _producingUnits.Add(productionUnit);
+    }
+
+    public void AddConsumingUnits(Unit consumptionUnit)
+    {
+        _consumingUnits.Add(consumptionUnit);
+    }
+
+    public void RemoveOperatingUnit(Unit unit) 
+    {
+        if ( _producingUnits.Contains(unit) )
+            _producingUnits.Remove(unit);
+        
+        if ( _consumingUnits.Contains(unit) )
+            _consumingUnits.Remove(unit); 
+    }
+
     private IEnumerator _ProducingResources()
     {
         while (true)
         {
-            foreach (Unit unit in producingUnits)
-                unit.ProduceResources();
+            float producingRate = 2f;
+            foreach (var unit in _producingUnits)
+            {
+                foreach (var producingModel in unit.Data.ProductionModels)
+                    producingModel.Produce();
+            }
             EventManager.TriggerEvent("UpdateResourceTexts");
-            yield return new WaitForSeconds(_producingRate);
+            yield return new WaitForSeconds(producingRate);
         }
     }
 
@@ -148,10 +169,15 @@ public class GameManager : MonoBehaviour
     {
         while (true)
         {
-            foreach (Unit unit in consumingUnits)
-                unit.ConsumeResources();
+            
+            float consumingRate = 2f;
+            foreach (var unit in _consumingUnits)
+            {
+                foreach (var consumptionModel in unit.Data.ConsumptionModels)
+                    consumptionModel.Consume();
+            }
             EventManager.TriggerEvent("UpdateResourceTexts");
-            yield return new WaitForSeconds(_consumingRate);
+            yield return new WaitForSeconds(consumingRate);
         }
     }
 }

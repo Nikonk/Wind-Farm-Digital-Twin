@@ -51,7 +51,7 @@ public class UnitsSelection : MonoBehaviour
             }
         }
 
-        int alphaKey = 0;
+        int alphaKey;
         if (int.TryParse(Input.inputString, out alphaKey))
         {
             if (

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class Utils
@@ -126,4 +127,20 @@ public static class Utils
         return (bottomLeft, topRight);
     }
 
+    public static Dictionary<InGameResource, int> ConvertResourceValueListToDictionary(List<ResourceValue> convertationList)
+    {
+        var resultDictionary = new Dictionary<InGameResource, int>();
+        foreach (var value in convertationList)
+        {
+            if (resultDictionary.ContainsKey(value.code))
+            {
+                resultDictionary[value.code] += value.amount;
+            }
+            else
+            {
+                resultDictionary.Add(value.code, value.amount);
+            }
+        }
+        return resultDictionary;
+    }
 }

@@ -7,12 +7,9 @@ public class UnitData : ScriptableObject
     [SerializeField] private string _code;
     [SerializeField] private string _unitName;
     [SerializeField] private string _description;
-    [SerializeField] private int _healthpoints;
     [SerializeField] private GameObject _prefab;
     [SerializeField] private List<ResourceValue> _cost;
     [SerializeField] private List<SkillData> _skills = new List<SkillData>();
-    [SerializeField] private InGameResource[] _canProduce = new InGameResource[0];
-    [SerializeField] private InGameResource[] _canConsume = new InGameResource[0];
 
     public bool CanBuy()
     {
@@ -29,10 +26,11 @@ public class UnitData : ScriptableObject
     public string Code { get => _code; }
     public string UnitName { get => _unitName; }
     public string Description { get => _description; }
-    public int HP { get => _healthpoints; }
     public GameObject Prefab { get => _prefab; }
     public List<ResourceValue> Cost { get => _cost; }
     public List<SkillData> Skills { get => _skills; }
-    public InGameResource[] CanProduce { get => _canProduce; }
-    public InGameResource[] CanConsume { get => _canConsume; }
+    public virtual bool IsHasProduction { get => false; }
+    public virtual bool IsHasConsumption { get => false; }
+    public virtual List<ProductionModel> ProductionModels { get => new List<ProductionModel>(); }
+    public virtual List<ConsumptionModel> ConsumptionModels { get => new List<ConsumptionModel>(); }
 }
