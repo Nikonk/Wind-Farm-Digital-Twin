@@ -17,7 +17,7 @@ public class BuildingPlacer : MonoBehaviour
         if (_placedBuilding != null)
         {
             if (_placedBuilding.Data.IsHasTransfer) 
-                ActivateEnergyTransferArea(_placedBuilding, true);
+                ActivateEnergyTransferArea(true);
 
             if (Input.GetKeyUp(KeyCode.Escape) || Input.GetKeyUp(KeyCode.Mouse1))
             {
@@ -53,7 +53,7 @@ public class BuildingPlacer : MonoBehaviour
                 !EventSystem.current.IsPointerOverGameObject())
             {
                 if (_placedBuilding.Data.IsHasTransfer) 
-                    ActivateEnergyTransferArea(_placedBuilding, false);
+                    ActivateEnergyTransferArea(false);
 
                 PlaceBuilding();
             }
@@ -102,11 +102,11 @@ public class BuildingPlacer : MonoBehaviour
 
     private void CancelPlacedBuilding()
     {
-        Destroy(_placedBuilding.Transform.gameObject);
+        Destroy(_placedBuilding.GameObjectOfBuilding);
         _placedBuilding = null;
     }
 
-    private void ActivateEnergyTransferArea(Building building, bool isActivate)
+    private void ActivateEnergyTransferArea(bool isActivate)
     {
         _placedBuilding.GameObjectOfBuilding.transform.Find("EnergyTransferArea").gameObject.SetActive(isActivate);
     }

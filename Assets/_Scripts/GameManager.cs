@@ -10,11 +10,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Canvas canvas;
     [SerializeField] private float canvasScaleFactor;
 
-    private Ray _ray;
-    private RaycastHit _raycastHit;
-
     [Header("Minimap")]
     [SerializeField] private Collider mapWrapperCollider;
+
+    private Ray _ray;
+    private RaycastHit _raycastHit;
 
 
     private List<Unit> _producingUnits = new List<Unit>();
@@ -26,9 +26,9 @@ public class GameManager : MonoBehaviour
     private List<Unit> _transferUnits = new List<Unit>();
     private Coroutine _transferResourcesCoroutine = null;
 
+    public bool IsGamePaused { get; private set; }
     public Collider MapWrapperCollider => mapWrapperCollider;
     public float CanvasScaleFactor => canvasScaleFactor;
-    public bool IsGamePaused { get; private set; }
 
     private void Awake() 
     {
@@ -117,11 +117,9 @@ public class GameManager : MonoBehaviour
                 1000f,
                 Globals.TerrainLayerMask
             ))
-            {
                 foreach (UnitManager um in Globals.SelectedUnits)
                     if (um.GetType() == typeof(CharacterManager))
                         ((CharacterManager)um).MoveTo(_raycastHit.point);
-            }
         }
     }
 
@@ -168,10 +166,8 @@ public class GameManager : MonoBehaviour
             float producingRate = 2f;
 
             foreach (var unit in _producingUnits)
-            {
                 foreach (var producingModel in unit.Data.ProductionModels)
                     producingModel.Produce();
-            }
 
             EventManager.TriggerEvent("UpdateResourceTexts");
             yield return new WaitForSeconds(producingRate);
@@ -185,10 +181,8 @@ public class GameManager : MonoBehaviour
             float consumingRate = 2f;
 
             foreach (var unit in _consumingUnits)
-            {
                 foreach (var consumptionModel in unit.Data.ConsumptionModels)
                     consumptionModel.Consume();
-            }
 
             EventManager.TriggerEvent("UpdateResourceTexts");
             yield return new WaitForSeconds(consumingRate);
@@ -202,12 +196,8 @@ public class GameManager : MonoBehaviour
             float transferRate = 1f;
 
             foreach (var unit in _transferUnits)
-            {
                 foreach (var transferModel in unit.Data.TransferModels)
-                {
                     transferModel.Transfer();
-                }
-            }
 
             EventManager.TriggerEvent("UpdateResourceTexts");
             yield return new WaitForSeconds(transferRate);

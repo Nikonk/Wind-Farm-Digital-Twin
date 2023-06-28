@@ -35,14 +35,16 @@ public class SkillManager : MonoBehaviour
     private void SetReady(bool ready)
     {
         _ready = ready;
-        if (_button != null) _button.interactable = ready;
+
+        if (_button != null)
+            _button.interactable = ready;
     }
 
     private IEnumerator WrappedTrigger(GameObject target)
     {
+        SetReady(false);
         yield return new WaitForSeconds(_skill.CastTime);
         _skill.Trigger(_source, target);
-        SetReady(false);
 
         yield return new WaitForSeconds(_skill.Cooldown);
         SetReady(true);

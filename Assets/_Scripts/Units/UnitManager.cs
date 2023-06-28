@@ -11,11 +11,8 @@ public class UnitManager : MonoBehaviour
     private void OnMouseDown()
     {
         if (IsActive())
-            Select(
-                true,
-                Input.GetKey(KeyCode.LeftShift) ||
-                Input.GetKey(KeyCode.RightShift)
-            );
+            Select(true,
+                   Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
     }
 
     public virtual Unit Unit { get; set; }
@@ -37,6 +34,7 @@ public class UnitManager : MonoBehaviour
     }
 
     public void Select() => Select(false, false);
+
     public void Select(bool singleClick, bool holdingShift)
     {
         if (!singleClick)

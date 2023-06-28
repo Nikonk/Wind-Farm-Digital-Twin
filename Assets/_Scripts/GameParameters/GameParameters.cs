@@ -3,28 +3,28 @@ using UnityEngine;
 
 public abstract class GameParameters : JSONSerializableScriptableObject
 {
-    [SerializeField] protected List<string> _fieldsToShowInGame;
+    [SerializeField] protected List<string> FieldsToShowInGame;
 
-    public List<string> FieldsToShowInGame => _fieldsToShowInGame;
+    public List<string> FieldsToShow => FieldsToShowInGame;
 
     public abstract string GetParametersName();
 
     public bool IsShowsField(string fieldName)
     {
-        if (_fieldsToShowInGame == null)
+        if (FieldsToShowInGame == null)
             return false;
 
-        return _fieldsToShowInGame.Contains(fieldName);
+        return FieldsToShowInGame.Contains(fieldName);
     }
 
     public void ToggleShowField(string fieldName)
     {
-        if (_fieldsToShowInGame == null)
-            _fieldsToShowInGame = new List<string>();
+        if (FieldsToShowInGame == null)
+            FieldsToShowInGame = new List<string>();
 
         if (IsShowsField(fieldName))
-            _fieldsToShowInGame.Remove(fieldName);
+            FieldsToShowInGame.Remove(fieldName);
         else
-            _fieldsToShowInGame.Add(fieldName);
+            FieldsToShowInGame.Add(fieldName);
     }
 }

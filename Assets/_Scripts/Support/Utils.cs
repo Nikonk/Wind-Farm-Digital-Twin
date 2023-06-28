@@ -56,6 +56,7 @@ public static class Utils
         screenPosition2.y = Screen.height - screenPosition2.y;
         Vector3 topLeft = Vector3.Min(screenPosition1, screenPosition2);
         Vector3 bottomRight = Vector3.Max(screenPosition1, screenPosition2);
+
         return Rect.MinMaxRect(topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
     }
 
@@ -70,6 +71,7 @@ public static class Utils
 
         Bounds bounds = new Bounds();
         bounds.SetMinMax(min, max);
+
         return bounds;
     }
 
@@ -78,12 +80,15 @@ public static class Utils
     public static Vector3 MiddleOfScreenPointToWorld(Camera cam)
     {
         _ray = cam.ScreenPointToRay(0.5f * new Vector2(Screen.width, Screen.height));
+
         if (Physics.Raycast(
                 _ray,
                 out _hit,
                 1000f,
                 Globals.TerrainLayerMask
-            )) return _hit.point;
+            )) 
+            return _hit.point;
+
         return Vector3.zero;
     }
 
@@ -92,24 +97,30 @@ public static class Utils
     public static Vector3[] ScreenCornersToWorldPoints(Camera cam)
     {
         Vector3[] corners = new Vector3[4];
+
         for (int i = 0; i < 4; i++)
         {
             _ray = cam.ScreenPointToRay(new Vector2((i % 2), (i / 2)));
+
             if (Physics.Raycast(
                     _ray,
                     out _hit,
                     1000f,
                     Globals.TerrainLayerMask
-                )) corners[i] = _hit.point;
+                )) 
+                corners[i] = _hit.point;
         }
+
         return corners;
     }
 
     public static Vector3 ProjectOnTerrain(Vector3 pos)
     {
         Vector3 initialPos = pos + Vector3.up * 1000f;
+
         if (Physics.Raycast(initialPos, Vector3.down, out _hit, 2000f, Globals.FlatTerrainLayerMask))
             pos = _hit.point;
+
         return pos;
     }
 
@@ -133,17 +144,13 @@ public static class Utils
     public static Dictionary<InGameResource, int> ConvertResourceValueListToDictionary(List<ResourceValue> convertationList)
     {
         var resultDictionary = new Dictionary<InGameResource, int>();
+
         foreach (var value in convertationList)
-        {
             if (resultDictionary.ContainsKey(value.Resource))
-            {
                 resultDictionary[value.Resource] += value.Amount;
-            }
             else
-            {
                 resultDictionary.Add(value.Resource, value.Amount);
-            }
-        }
+
         return resultDictionary;
     }
 }

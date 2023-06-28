@@ -8,7 +8,7 @@ public class BuildingManager : UnitManager
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Terrain")
+        if (other.CompareTag("Terrain"))
             return;
 
         _nCollisions++;
@@ -17,7 +17,7 @@ public class BuildingManager : UnitManager
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.tag == "Terrain")
+        if (other.CompareTag("Terrain"))
             return;
 
         _nCollisions--;
@@ -27,10 +27,7 @@ public class BuildingManager : UnitManager
     public override Unit Unit
     {
         get => _building;
-        set 
-        {
-            _building = value is Building building ? building : null; 
-        }
+        set => _building = value is Building building ? building : null;
     }
 
     public void Initialize(Building building)
@@ -41,10 +38,7 @@ public class BuildingManager : UnitManager
 
     public bool CheckPlacement()
     {
-        if (_building == null)
-            return false;
-
-        if (_building.IsFixed)
+        if (_building == null || _building.IsFixed)
             return false;
 
         bool validPlacement = HasValidPlacement();
@@ -62,36 +56,29 @@ public class BuildingManager : UnitManager
         if (_nCollisions > 0)
             return false;
 
-        Vector3 p = transform.position;
-        Vector3 c = Collider.center;
-        Vector3 e = Collider.size / 2f;
-        float bottomHeight = c.y - e.y + 0.5f;
+        Vector3 position = transform.position;
+        Vector3 colliderCenter = Collider.center;
+        Vector3 halfColliderSize = Collider.size / 2f;
+        float bottomHeight = colliderCenter.y - halfColliderSize.y + 0.5f;
         Vector3[] bottomCorners = new Vector3[]
         {
-            new Vector3(c.x - e.x, bottomHeight, c.z - e.z),
-            new Vector3(c.x - e.x, bottomHeight, c.z + e.z),
-            new Vector3(c.x + e.x, bottomHeight, c.z - e.z),
-            new Vector3(c.x + e.x, bottomHeight, c.z + e.z)
+            new Vector3(colliderCenter.x - halfColliderSize.x, bottomHeight, colliderCenter.z - halfColliderSize.z),
+            new Vector3(colliderCenter.x - halfColliderSize.x, bottomHeight, colliderCenter.z + halfColliderSize.z),
+            new Vector3(colliderCenter.x + halfColliderSize.x, bottomHeight, colliderCenter.z - halfColliderSize.z),
+            new Vector3(colliderCenter.x + halfColliderSize.x, bottomHeight, colliderCenter.z + halfColliderSize.z)
         };
 
         int invalidCornersCount = 0;
 
         foreach (Vector3 corner in bottomCorners)
-        {
-            if (!Physics.Raycast(
-                p + corner,
-                Vector3.up * -1f,
-                2f,
-                Globals.TerrainLayerMask
-            ))
+            if (!Physics.Raycast(position + corner,
+                                 Vector3.up * -1f,
+                                 2f,
+                                 Globals.TerrainLayerMask))
                 invalidCornersCount++;
-        }
 
         return invalidCornersCount < 3;
     }
 
-    protected override bool IsActive()
-    {
-        return _building.IsFixed;
-    }
+    protected override bool IsActive() => _building.IsFixed;
 }

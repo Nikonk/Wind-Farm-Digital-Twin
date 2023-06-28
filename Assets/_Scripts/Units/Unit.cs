@@ -10,8 +10,8 @@ public class Unit
     {
         Data = data;
 
-        GameObject g = GameObject.Instantiate(data.Prefab) as GameObject;
-        Position = g.transform;
+        GameObject unit = GameObject.Instantiate(data.Prefab) as GameObject;
+        Position = unit.transform;
 
         Uid = System.Guid.NewGuid().ToString();
 
@@ -20,13 +20,19 @@ public class Unit
 
         foreach (SkillData skill in Data.Skills)
         {
-            sm = g.AddComponent<SkillManager>();
-            sm.Initialize(skill, g);
+            sm = unit.AddComponent<SkillManager>();
+            sm.Initialize(skill, unit);
             SkillManagers.Add(sm);
         }
 
         Position.GetComponent<UnitManager>().Initialize(this);
     }
+
+    public UnitData Data { get; private set; }
+    public string Uid { get; private set; }
+    public List<SkillManager> SkillManagers { get; private set; }
+    public string Code { get => Data.Code; }
+    public Transform Transform { get => Position; }
 
     public void SetPosition(Vector3 position)
     {
@@ -41,19 +47,10 @@ public class Unit
             Globals.GameResources[resource.Resource].ChangeAmount(-resource.Amount);
     }
 
-    public bool CanBuy()
-    {
-        return Data.CanBuy();
-    }
+    public bool CanBuy() => Data.CanBuy();
 
     public void TriggerSkill(int index, GameObject target = null)
     {
         SkillManagers[index].Trigger(target);
     }
-
-    public UnitData Data { get; private set; }
-    public string Uid { get; private set; }
-    public List<SkillManager> SkillManagers { get; private set; }
-    public string Code { get => Data.Code; }
-    public Transform Transform { get => Position; }
 }

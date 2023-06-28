@@ -28,16 +28,16 @@ public class Minimap : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
         if (delta.magnitude > Mathf.Epsilon)
         {
-            Vector2 uiPos =
+            Vector2 uiPosition =
                 (new Vector2(Input.mousePosition.x, Input.mousePosition.y) /
                  GameManager.Instance.CanvasScaleFactor);
-            Vector3 realPos = new Vector3(
-                uiPos.x / _uiSize.x * _terrainSize.x,
+            Vector3 realPosition = new Vector3(
+                uiPosition.x / _uiSize.x * _terrainSize.x,
                 0f,
-                uiPos.y / _uiSize.y * _terrainSize.y
+                uiPosition.y / _uiSize.y * _terrainSize.y
             );
-            realPos = Utils.ProjectOnTerrain(realPos);
-            EventManager.TriggerEvent("MoveCamera", realPos);
+            realPosition = Utils.ProjectOnTerrain(realPosition);
+            EventManager.TriggerEvent("MoveCamera", realPosition);
         }
     }
 

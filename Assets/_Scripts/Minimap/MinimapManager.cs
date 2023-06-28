@@ -6,24 +6,19 @@ public class MinimapManager : MonoBehaviour
     [SerializeField] private Material _mapFOVIndicator;
     [SerializeField] private float _lineWidth = 0.01f;
 
-    private static Material _indicatorMat;
-
-    private Camera _minimapCam;
+    private Camera _minimapCamera;
 
 
     private void Start()
     {
-        if (_indicatorMat == null)
-            _indicatorMat = _mapFOVIndicator;
-
-        _minimapCam = GetComponent<Camera>();
+        _minimapCamera = GetComponent<Camera>();
     }
 
     public void OnPostRender()
     {
         (Vector3 minWorldPoint, Vector3 maxWorldPoint) = Utils.GetCameraWorldBounds();
-        Vector3 minViewportPoint = _minimapCam.WorldToViewportPoint(minWorldPoint);
-        Vector3 maxViewportPoint = _minimapCam.WorldToViewportPoint(maxWorldPoint);
+        Vector3 minViewportPoint = _minimapCamera.WorldToViewportPoint(minWorldPoint);
+        Vector3 maxViewportPoint = _minimapCamera.WorldToViewportPoint(maxWorldPoint);
 
         float minX = minViewportPoint.x;
         float minY = minViewportPoint.y;
@@ -32,7 +27,7 @@ public class MinimapManager : MonoBehaviour
 
         GL.PushMatrix();
         {
-            _indicatorMat.SetPass(0);
+            _mapFOVIndicator.SetPass(0);
             GL.LoadOrtho();
 
             GL.Begin(GL.QUADS);

@@ -23,9 +23,9 @@ public class CameraManager : MonoBehaviour
     private float _maxX;
     private float _minZ;
     private float _maxZ;
-    private Vector3 _camOffset;
-    private Vector3 _camHalfViewZone;
-    private float _camMinimapBuffer = 10f;
+    private Vector3 _offset;
+    private Vector3 _halfViewZone;
+    private float _minimapBuffer = 10f;
 
 
     private void Start() 
@@ -37,8 +37,8 @@ public class CameraManager : MonoBehaviour
 
         (Vector3 minWorldPoint, Vector3 maxWorldPoint) = Utils.GetCameraWorldBounds();
 
-        _camOffset = transform.position - (maxWorldPoint + minWorldPoint) / 2f;
-        _camHalfViewZone = (maxWorldPoint - minWorldPoint) / 2f + Vector3.one * _camMinimapBuffer;
+        _offset = transform.position - (maxWorldPoint + minWorldPoint) / 2f;
+        _halfViewZone = (maxWorldPoint - minWorldPoint) / 2f + Vector3.one * _minimapBuffer;
     }
 
     private void Awake() 
@@ -96,13 +96,13 @@ public class CameraManager : MonoBehaviour
 
     private void _TranslateCamera(int dir)
     {
-        if (dir == 0 && transform.position.z - _camOffset.z + _camHalfViewZone.z <= _maxZ)
+        if (dir == 0 && transform.position.z - _offset.z + _halfViewZone.z <= _maxZ)
             transform.Translate(_forwardDir * Time.deltaTime * _translationSpeed, Space.World);
-        else if (dir == 1 && transform.position.x + _camHalfViewZone.x <= _maxX)
+        else if (dir == 1 && transform.position.x + _halfViewZone.x <= _maxX)
             transform.Translate(transform.right * Time.deltaTime * _translationSpeed);
-        else if (dir == 2 && transform.position.z - _camOffset.z - _camHalfViewZone.z >= _minZ)
+        else if (dir == 2 && transform.position.z - _offset.z - _halfViewZone.z >= _minZ)
             transform.Translate(-_forwardDir * Time.deltaTime * _translationSpeed, Space.World);
-        else if (dir == 3 && transform.position.x - _camHalfViewZone.x >= _minX)
+        else if (dir == 3 && transform.position.x - _halfViewZone.x >= _minX)
             transform.Translate(-transform.right * Time.deltaTime * _translationSpeed);
 
         if (_autoAdaptAltitude)
@@ -133,27 +133,27 @@ public class CameraManager : MonoBehaviour
 
         (Vector3 minWorldPoint, Vector3 maxWorldPoint) = Utils.GetCameraWorldBounds();
 
-        _camOffset = transform.position - (maxWorldPoint + minWorldPoint) / 2f;
-        _camHalfViewZone = (maxWorldPoint - minWorldPoint) / 2f + Vector3.one * _camMinimapBuffer;
+        _offset = transform.position - (maxWorldPoint + minWorldPoint) / 2f;
+        _halfViewZone = (maxWorldPoint - minWorldPoint) / 2f + Vector3.one * _minimapBuffer;
 
-        Vector3 pos = Utils.MiddleOfScreenPointToWorld();
-        pos = FixBounds(pos);
-        SetPosition(pos);
+        Vector3 centerPosition = Utils.MiddleOfScreenPointToWorld();
+        centerPosition = FixBounds(centerPosition);
+        SetPosition(centerPosition);
     }
 
     private Vector3 FixBounds(Vector3 pos)
     {
-        if (pos.x - _camHalfViewZone.x < _minX)
-            pos.x = _minX + _camHalfViewZone.x;
+        if (pos.x - _halfViewZone.x < _minX)
+            pos.x = _minX + _halfViewZone.x;
 
-        if (pos.x + _camHalfViewZone.x > _maxX)
-            pos.x = _maxX - _camHalfViewZone.x;
+        if (pos.x + _halfViewZone.x > _maxX)
+            pos.x = _maxX - _halfViewZone.x;
 
-        if (pos.z - _camHalfViewZone.z < _minZ)
-            pos.z = _minZ + _camHalfViewZone.z;
+        if (pos.z - _halfViewZone.z < _minZ)
+            pos.z = _minZ + _halfViewZone.z;
 
-        if (pos.z + _camHalfViewZone.z > _maxZ)
-            pos.z = _maxZ - _camHalfViewZone.z;
+        if (pos.z + _halfViewZone.z > _maxZ)
+            pos.z = _maxZ - _halfViewZone.z;
 
         return pos;
     }
@@ -174,8 +174,8 @@ public class CameraManager : MonoBehaviour
 
     private void OnMoveCamera(object data)
     {
-        Vector3 pos = FixBounds( (Vector3)data );
-        SetPosition(pos);
+        Vector3 position = FixBounds( (Vector3)data );
+        SetPosition(position);
 
         if (_autoAdaptAltitude)
             FixAltitude();

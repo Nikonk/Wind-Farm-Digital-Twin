@@ -28,7 +28,6 @@ public class SkillData : ScriptableObject
         {
             case SkillType.InstantiateCharacter:
                 InstantiateCharacter(source);
-
                 break;
 
             default:

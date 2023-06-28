@@ -15,7 +15,7 @@ public class BuildingData : UnitData
     
     public override bool IsHasProduction => _productionModels.Count > 0;
     public override bool IsHasConsumption => _consumptionModels.Count > 0;
-    public override bool IsHasTransfer => _transferModels == null ? false : _transferModels.Count > 0;
+    public override bool IsHasTransfer => _transferModels != null && _transferModels.Count > 0;
     public override List<ProductionModel> ProductionModels => _productionModels;
     public override List<ConsumptionModel> ConsumptionModels => _consumptionModels;
     public override List<TransferModel> TransferModels => _transferModels;

@@ -10,10 +10,7 @@ public class CharacterManager : UnitManager
     public override Unit Unit
     {
         get => _character;
-        set 
-        { 
-            _character = value is Character character ? character : null; 
-        }
+        set => _character = value is Character character ? character : null;
     }
 
     public void MoveTo(Vector3 targetPosition)

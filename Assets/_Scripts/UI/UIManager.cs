@@ -32,10 +32,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _selectedUnitInfoPrefab;
     [SerializeField] private GameObject _selectedUnitMenu;
     [SerializeField] private Transform _selectionGroupsParent;
-    private RectTransform _selectedUnitContentRectTransform;
-    private RectTransform _selectedUnitGlobalButtonsRectTransform;
     private TMP_Text _selectedUnitTitleText;
-    private TMP_Text _selectedUnitLevelText;
     private Transform _selectedUnitResourcesProductionParent;
     private Transform _selectedUnitActionButtonsParent;
 
@@ -75,21 +72,21 @@ public class UIManager : MonoBehaviour
 
         for (int i = 0; i < Globals.BuildingData.Count; i++)
         {
-            GameObject button = GameObject.Instantiate(
+            GameObject buildingButton = GameObject.Instantiate(
                 _buildingButtonPrefab,
                 _buildingMenu);
             BuildingData buildingData = Globals.BuildingData[i];
 
-            button.name = buildingData.UnitName;
-            button.transform.Find("Text").GetComponent<TMP_Text>().text = buildingData.UnitName;
-            button.GetComponent<BuildingButton>().Initialize(buildingData);
-            Button b = button.GetComponent<Button>();
-            AddBuildingButtonListener(b, i);
+            buildingButton.name = buildingData.UnitName;
+            buildingButton.transform.Find("Text").GetComponent<TMP_Text>().text = buildingData.UnitName;
+            buildingButton.GetComponent<BuildingButton>().Initialize(buildingData);
+            Button button = buildingButton.GetComponent<Button>();
+            AddBuildingButtonListener(button, i);
             
-            _buildingButtons[buildingData.Code] = b;
+            _buildingButtons[buildingData.Code] = button;
             
             if (buildingData.CanBuy() == false)
-                b.interactable = false;
+                button.interactable = false;
         }
 
         Transform infoPanelTransform = _infoPanel.transform;
@@ -102,14 +99,8 @@ public class UIManager : MonoBehaviour
             ToggleSelectionGroupButton(i, false);
         
         Transform selectedUnitMenuTransform = _selectedUnitMenu.transform;
-        _selectedUnitContentRectTransform = selectedUnitMenuTransform
-            .Find("Content").GetComponent<RectTransform>();
-        _selectedUnitGlobalButtonsRectTransform = selectedUnitMenuTransform
-            .Find("GlobalActions").GetComponent<RectTransform>();
         _selectedUnitTitleText = selectedUnitMenuTransform
             .Find("Content/Title").GetComponent<TMP_Text>();
-        _selectedUnitLevelText = selectedUnitMenuTransform
-            .Find("Content/Level").GetComponent<TMP_Text>();
         _selectedUnitResourcesProductionParent = selectedUnitMenuTransform
             .Find("Content/ResourcesProduction");
         _selectedUnitActionButtonsParent = selectedUnitMenuTransform
@@ -121,8 +112,8 @@ public class UIManager : MonoBehaviour
         GameParameters[] gameParametersList = Resources.LoadAll<GameParameters>("ScriptableObjects/Parameters");
         _gameParameters = new Dictionary<string, GameParameters>();
 
-        foreach (GameParameters p in gameParametersList)
-            _gameParameters[p.GetParametersName()] = p;
+        foreach (GameParameters gameParameter in gameParametersList)
+            _gameParameters[gameParameter.GetParametersName()] = gameParameter;
 
         SetupGameSettingsPanel();
 
@@ -168,18 +159,18 @@ public class UIManager : MonoBehaviour
 
         if (data.Cost.Count > 0)
         {
-            GameObject g;
-            Transform t;
+            Transform transformGameResourceDisplay;
+
             foreach (ResourceValue resource in data.Cost)
             {
-                g = GameObject.Instantiate(_gameResourceDisplayPrefab, _infoPanelResourcesCostParent);
-                t = g.transform;
-                t.Find("Icon").GetComponent<Image>().sprite =
+                transformGameResourceDisplay = GameObject.Instantiate(_gameResourceDisplayPrefab, _infoPanelResourcesCostParent).transform;
+                transformGameResourceDisplay.Find("Icon").GetComponent<Image>().sprite =
                     Resources.Load<Sprite>($"Textures/GameResources/{resource.Resource}");
-                t.Find("Text").GetComponent<TMP_Text>().text = resource.Amount.ToString();
+                transformGameResourceDisplay.Find("Text").GetComponent<TMP_Text>().text = resource.Amount.ToString();
                 Color invalidTextColor = Color.red;
+
                 if (Globals.GameResources[resource.Resource].Amount < resource.Amount)
-                    t.Find("Text").GetComponent<TMP_Text>().color = invalidTextColor;
+                    transformGameResourceDisplay.Find("Text").GetComponent<TMP_Text>().color = invalidTextColor;
             }
         }
     }
@@ -215,9 +206,9 @@ public class UIManager : MonoBehaviour
         Destroy(_selectedUnit.Transform.gameObject);
     }
 
-    private void AddBuildingButtonListener(Button b, int i)
+    private void AddBuildingButtonListener(Button button, int i)
     {
-        b.onClick.AddListener(() => _buildingPlacer.SelectPlacedBuilding(i));
+        button.onClick.AddListener(() => _buildingPlacer.SelectPlacedBuilding(i));
     }  
 
     private void SetResourceText(InGameResource resource, int value)  
@@ -278,18 +269,18 @@ public class UIManager : MonoBehaviour
 
         if (alreadyInstantiatedChild != null)
         {
-            TMP_Text t = alreadyInstantiatedChild.Find("Count").GetComponent<TMP_Text>();
-            int count = int.Parse(t.text);
-            t.text = (count + 1).ToString();
+            TMP_Text tmpText = alreadyInstantiatedChild.Find("Count").GetComponent<TMP_Text>();
+            int count = int.Parse(tmpText.text);
+            tmpText.text = (count + 1).ToString();
         }
         else
         {
-            GameObject g = GameObject.Instantiate(
-                _selectedUnitInfoPrefab, _selectedUnitsListParent);
-            g.name = unit.Code;
-            Transform t = g.transform;
-            t.Find("Count").GetComponent<TMP_Text>().text = "1";
-            t.Find("UnitType").GetComponent<TMP_Text>().text = unit.Data.UnitName;
+            GameObject selectedUnitInfo = GameObject.Instantiate(_selectedUnitInfoPrefab,
+                                                                 _selectedUnitsListParent);
+            selectedUnitInfo.name = unit.Code;
+            Transform transform = selectedUnitInfo.transform;
+            transform.Find("Count").GetComponent<TMP_Text>().text = "1";
+            transform.Find("UnitType").GetComponent<TMP_Text>().text = unit.Data.UnitName;
         }
     }
 
@@ -300,19 +291,19 @@ public class UIManager : MonoBehaviour
         if (listItem == null)
             return;
 
-        TMP_Text t = listItem.Find("Count").GetComponent<TMP_Text>();
-        int count = int.Parse(t.text);
+        TMP_Text tmpText = listItem.Find("Count").GetComponent<TMP_Text>();
+        int count = int.Parse(tmpText.text);
         count -= 1;
 
         if (count == 0)
-            DestroyImmediate(listItem.gameObject);
+            Destroy(listItem.gameObject);
         else
-            t.text = count.ToString();
+            tmpText.text = count.ToString();
     }
 
-    private void AddUnitSkillButtonListener(Button b, int i)
+    private void AddUnitSkillButtonListener(Button button, int i)
     {
-        b.onClick.AddListener(() => _selectedUnit.TriggerSkill(i));
+        button.onClick.AddListener(() => _selectedUnit.TriggerSkill(i));
     }
 
     private void SetSelectedUnitMenu(Unit unit)
@@ -325,18 +316,16 @@ public class UIManager : MonoBehaviour
 
         if (unit.Data.IsHasProduction)
         {
-            GameObject g;
-            Transform t;
+            Transform gameResourceCost;
 
             foreach (var productionModel in unit.Data.ProductionModels)
             {
                 foreach (var resource in productionModel.Productions)
                 {
-                    g = GameObject.Instantiate(
-                        _gameResourceCostPrefab, _selectedUnitResourcesProductionParent);
-                    t = g.transform;
-                    t.Find("Text").GetComponent<TMP_Text>().text = $"+{resource.Value}";
-                    t.Find("Icon").GetComponent<Image>().sprite =
+                    gameResourceCost = GameObject.Instantiate(
+                            _gameResourceCostPrefab, _selectedUnitResourcesProductionParent).transform;
+                    gameResourceCost.Find("Text").GetComponent<TMP_Text>().text = $"+{resource.Value}";
+                    gameResourceCost.Find("Icon").GetComponent<Image>().sprite =
                                 Resources.Load<Sprite>($"Textures/GameResources/{resource.Key}");
                 }
             }
@@ -347,19 +336,18 @@ public class UIManager : MonoBehaviour
 
         if (unit.SkillManagers.Count > 0)
         {
-            GameObject g;
-            Transform t;
-            Button b;
+            GameObject unitSkillButton;
+            Button button;
+
             for (int i = 0; i < unit.SkillManagers.Count; i++)
             {
-                g = GameObject.Instantiate(
+                unitSkillButton = GameObject.Instantiate(
                     _unitSkillButtonPrefab, _selectedUnitActionButtonsParent);
-                t = g.transform;
-                b = g.GetComponent<Button>();
-                unit.SkillManagers[i].SetButton(b);
-                t.Find("Text").GetComponent<TMP_Text>().text =
+                button = unitSkillButton.GetComponent<Button>();
+                unit.SkillManagers[i].SetButton(button);
+                unitSkillButton.transform.Find("Text").GetComponent<TMP_Text>().text =
                     unit.SkillManagers[i].Skill.SkillName;
-                AddUnitSkillButtonListener(b, i);
+                AddUnitSkillButtonListener(button, i);
             }
         }
     }
@@ -372,29 +360,30 @@ public class UIManager : MonoBehaviour
 
     private void SetupGameSettingsPanel()
     {
-        GameObject g; string n;
+        GameObject gameSettingsMenuButton; 
+        string parametersName;
         List<string> availableMenus = new List<string>();
 
         foreach (GameParameters parameters in _gameParameters.Values)
         {
-            if (parameters.FieldsToShowInGame.Count == 0)
+            if (parameters.FieldsToShow.Count == 0)
                 continue;
 
-            g = GameObject.Instantiate(
-                _gameSettingsMenuButtonPrefab, _gameSettingsMenusParent);
-            n = parameters.GetParametersName();
-            g.transform.Find("Text").GetComponent<TMP_Text>().text = n;
-            AddGameSettingsPanelMenuListener(g.GetComponent<Button>(), n);
-            availableMenus.Add(n);
+            gameSettingsMenuButton = GameObject.Instantiate(_gameSettingsMenuButtonPrefab,
+                                                            _gameSettingsMenusParent);
+            parametersName = parameters.GetParametersName();
+            gameSettingsMenuButton.transform.Find("Text").GetComponent<TMP_Text>().text = parametersName;
+            AddGameSettingsPanelMenuListener(gameSettingsMenuButton.GetComponent<Button>(), parametersName);
+            availableMenus.Add(parametersName);
         }
 
         if (availableMenus.Count > 0)
             SetGameSettingsContent(availableMenus[0]);
     }
 
-    private void AddGameSettingsPanelMenuListener(Button b, string menu)
+    private void AddGameSettingsPanelMenuListener(Button button, string menu)
     {
-        b.onClick.AddListener(() => SetGameSettingsContent(menu));
+        button.onClick.AddListener(() => SetGameSettingsContent(menu));
     }
 
     private void SetGameSettingsContent(string menu)
@@ -413,7 +402,7 @@ public class UIManager : MonoBehaviour
         float parameterNameWidth = 210f;
         float fieldHeight = 32f;
 
-        foreach (string fieldName in parameters.FieldsToShowInGame)
+        foreach (string fieldName in parameters.FieldsToShow)
         {
             gWrapper = GameObject.Instantiate(_gameSettingsParameterPrefab,
                                               _gameSettingsContentParent);
@@ -427,12 +416,12 @@ public class UIManager : MonoBehaviour
                 if (field.FieldType == typeof(bool))
                 {
                     gEditor = Instantiate(_togglePrefab);
-                    Toggle t = gEditor.GetComponent<Toggle>();
-                    t.isOn = (bool)field.GetValue(parameters);
+                    Toggle toggle = gEditor.GetComponent<Toggle>();
+                    toggle.isOn = (bool)field.GetValue(parameters);
 
-                    t.onValueChanged.AddListener(delegate
+                    toggle.onValueChanged.AddListener(delegate
                     {
-                        OnGameSettingsToggleValueChanged(parameters, field, fieldName, t);
+                        OnGameSettingsToggleValueChanged(parameters, field, fieldName, toggle);
                     });
                 }
                 else if (field.FieldType == typeof(int) || field.FieldType == typeof(float))
@@ -443,21 +432,22 @@ public class UIManager : MonoBehaviour
                     {
                         RangeAttribute attr = (RangeAttribute)System.Attribute.GetCustomAttribute(field, typeof(RangeAttribute));
                         gEditor = Instantiate(_sliderPrefab);
-                        Slider s = gEditor.GetComponent<Slider>();
-                        s.minValue = attr.min;
-                        s.maxValue = attr.max;
-                        s.wholeNumbers = field.FieldType == typeof(int);
-                        s.value = field.FieldType == typeof(int)
+                        Slider slider = gEditor.GetComponent<Slider>();
+                        slider.minValue = attr.min;
+                        slider.maxValue = attr.max;
+                        slider.wholeNumbers = field.FieldType == typeof(int);
+                        slider.value = field.FieldType == typeof(int)
                             ? (int)field.GetValue(parameters)
                             : (float)field.GetValue(parameters);
 
-                        s.onValueChanged.AddListener(delegate
+                        slider.onValueChanged.AddListener(delegate
                         {
-                            OnGameSettingsSliderValueChanged(parameters, field, fieldName, s);
+                            OnGameSettingsSliderValueChanged(parameters, field, fieldName, slider);
                         });
                     }
                 }
             }
+
             rtWrapper = gWrapper.GetComponent<RectTransform>();
             rtWrapper.anchoredPosition = new Vector2(0f, -i * fieldHeight);
             rtWrapper.sizeDelta = new Vector2(contentWidth, fieldHeight);
@@ -505,7 +495,7 @@ public class UIManager : MonoBehaviour
     {
         object[] values = (object[])data;
         Dictionary<InGameResource, int> production = values[0] as Dictionary<InGameResource, int>;
-        Vector3 pos = (Vector3)values[1];
+        Vector3 position = (Vector3)values[1];
 
         if (production == null)
             return;
@@ -513,20 +503,21 @@ public class UIManager : MonoBehaviour
         foreach (Transform child in _placedBuildingProductionRectTransform.gameObject.transform)
             Destroy(child.gameObject);
 
-        GameObject g;
-        Transform t;
+        Transform gameResourceCost;
 
         foreach (KeyValuePair<InGameResource, int> pair in production)
         {
-            g = GameObject.Instantiate(
-                _gameResourceCostPrefab,
-                _placedBuildingProductionRectTransform.transform);
-            t = g.transform;
-            t.Find("Text").GetComponent<TMP_Text>().text = $"+{pair.Value}";
-            t.Find("Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>($"Textures/GameResources/{pair.Key}");            
+            gameResourceCost = GameObject.Instantiate(_gameResourceCostPrefab,
+                                                      _placedBuildingProductionRectTransform.transform)
+                                            .transform;
+            gameResourceCost.Find("Text").GetComponent<TMP_Text>().text = $"+{pair.Value}";
+            gameResourceCost.Find("Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>($"Textures/GameResources/{pair.Key}");            
         }
 
         _placedBuildingProductionRectTransform.sizeDelta = new Vector2(80, 24 * production.Count);
+        _placedBuildingProductionRectTransform.anchoredPosition =
+            (Vector2)Camera.main.WorldToScreenPoint(position) / GameManager.Instance.CanvasScaleFactor
+            + Vector2.down * 600f;
     }
 
     private void OnPlaceBuildingOn()

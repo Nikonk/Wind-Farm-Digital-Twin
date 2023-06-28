@@ -14,10 +14,8 @@ public class UnitsSelection : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.Instance.IsGamePaused)
-            return;
-
-        if (EventSystem.current.IsPointerOverGameObject())
+        if (GameManager.Instance.IsGamePaused
+            || EventSystem.current.IsPointerOverGameObject())
             return;
 
         if (Input.GetMouseButtonDown(0))    
@@ -41,12 +39,10 @@ public class UnitsSelection : MonoBehaviour
             {
                 _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-                if (Physics.Raycast(
-                    _ray,
-                    out _raycastHit,
-                    1000f
-                ))
-                    if (_raycastHit.transform.tag == "Terrain")
+                if (Physics.Raycast(_ray,
+                                    out _raycastHit,
+                                    1000f))
+                    if (_raycastHit.transform.CompareTag("Terrain"))
                         DeselectAllUnits();
             }
         }
@@ -59,7 +55,7 @@ public class UnitsSelection : MonoBehaviour
                 Input.GetKey(KeyCode.LeftApple) ||
                 Input.GetKey(KeyCode.RightApple)
             )
-                _CreateSelectionGroup(alphaKey);
+                CreateSelectionGroup(alphaKey);
             else
                 ReselectGroup(alphaKey);
         }
@@ -110,7 +106,7 @@ public class UnitsSelection : MonoBehaviour
             um.Deselect();
     }
 
-    private void _CreateSelectionGroup(int groupIndex)
+    private void CreateSelectionGroup(int groupIndex)
     {
         if (Globals.SelectedUnits.Count == 0)
         {

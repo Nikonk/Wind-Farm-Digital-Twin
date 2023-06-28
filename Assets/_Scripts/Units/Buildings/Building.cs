@@ -18,7 +18,7 @@ public class Building : Unit
     public Building(BuildingData data) : this(data, new List<ResourceValue>() { }, new List<ResourceValue>() { }) { }
     public Building(BuildingData data, List<ResourceValue> production, List<ResourceValue> consumption)
         : base(data)
-    {        
+    {
         _materials = new List<Material>();
         Renderer[] renderers = Position.GetComponentsInChildren<Renderer>();
 
@@ -36,7 +36,23 @@ public class Building : Unit
         SetMaterials();
     }
 
-    public void SetMaterials() { SetMaterials(_placement); }
+    public int DataIndex
+    {
+        get
+        {
+            for (int i = 0; i < Globals.BuildingData.Count; i++)
+                if (Globals.BuildingData[i].Code == Data.Code)
+                    return i;
+
+            return -1;
+        }
+    }
+
+    public bool IsFixed => _placement == BuildingPlacement.FIXED;
+    public bool HasValidPlacement => _placement == BuildingPlacement.VALID;
+    public GameObject GameObjectOfBuilding => _buildingManager.gameObject;
+
+    public void SetMaterials() => SetMaterials(_placement);
 
     public void SetMaterials(BuildingPlacement placement)
     {
@@ -81,7 +97,7 @@ public class Building : Unit
 
         if (Data.IsHasProduction)
             GameManager.Instance.AddProducingUnits(this);
-        
+
         if (Data.IsHasConsumption)
             GameManager.Instance.AddConsumingUnits(this);
 
@@ -94,7 +110,7 @@ public class Building : Unit
 
     public void CheckValidPlacement()
     {
-        if (_placement == BuildingPlacement.FIXED) 
+        if (_placement == BuildingPlacement.FIXED)
             return;
 
         _placement = _buildingManager.CheckPlacement()
@@ -112,7 +128,7 @@ public class Building : Unit
                     resultProduction[production.Key] += production.Value;
                 else
                     resultProduction.Add(production.Key, production.Value);
-            
+
         return resultProduction;
     }
 
@@ -128,43 +144,23 @@ public class Building : Unit
                     resultConsumption.Add(consumption.Key, consumption.Value);
 
         return resultConsumption;
-    }    
-
-    public void ConnectedToBuilding(string buildingUid)
-    {
-        Collider[] colliders = Physics.OverlapSphere(Transform.position, 10f, Globals.UnitLayerMask);
-        Building pylon = null;
-
-        foreach (var collider in colliders)
-            if (buildingUid == collider.gameObject.GetComponent<BuildingManager>().Unit.Uid)
-            {
-                pylon = collider.gameObject.GetComponent<BuildingManager>().Unit as Building;
-                break;
-            }
-
-        if (pylon == null) 
-            return;
-
-        List<TransferModel> transferModels = (pylon.Data as BuildingData).TransferModels;
-
-        foreach (var transferModel in transferModels)
-            transferModel.AddTransferedProductions((Data as BuildingData).ProductionModels);
     }
 
     public void ConnectedToBuilding()
     {
-        Collider[] colliders = Physics.OverlapSphere(Transform.position, 10f, Globals.UnitLayerMask);
+        Collider[] colliders = Physics.OverlapSphere(Transform.position, Globals.EnergyTransferArea, Globals.UnitLayerMask);
         var units = new List<Building>();
 
-        foreach (Collider collider in colliders)
-        {
-            BuildingManager buildingManager;
-            collider.gameObject.TryGetComponent<BuildingManager>(out buildingManager);
-            var building = buildingManager.Unit as Building;
-            units.Add(building);        
-        }
+        BuildingManager buildingManager;
 
-        if (units == null) 
+        foreach (Collider collider in colliders)
+            if (collider.gameObject.TryGetComponent<BuildingManager>(out buildingManager))
+            {
+                var building = buildingManager.Unit as Building;
+                units.Add(building);
+            }
+
+        if (units == null)
             return;
 
         foreach (var unit in units)
@@ -172,18 +168,4 @@ public class Building : Unit
                 foreach (var transferModel in (Data as BuildingData).TransferModels)
                     transferModel.AddTransferedProductions(productionModel.Produce);
     }
-    
-    public int DataIndex
-    {
-        get {
-            for (int i = 0; i < Globals.BuildingData.Count; i++)
-                if (Globals.BuildingData[i].Code == Data.Code)
-                    return i;
-
-            return -1;
-        }
-    }
-    public bool IsFixed => _placement == BuildingPlacement.FIXED;
-    public bool HasValidPlacement => _placement == BuildingPlacement.VALID;
-    public GameObject GameObjectOfBuilding => _buildingManager.gameObject;
 }
