@@ -3,15 +3,17 @@ using UnityEngine;
 
 public abstract class GameParameters : JSONSerializableScriptableObject
 {
+    [SerializeField] protected List<string> _fieldsToShowInGame;
+
+    public List<string> FieldsToShowInGame => _fieldsToShowInGame;
+
     public abstract string GetParametersName();
 
-    [SerializeField]
-    protected List<string> _fieldsToShowInGame;
-
-    public bool ShowsField(string fieldName)
+    public bool IsShowsField(string fieldName)
     {
         if (_fieldsToShowInGame == null)
             return false;
+
         return _fieldsToShowInGame.Contains(fieldName);
     }
 
@@ -20,11 +22,9 @@ public abstract class GameParameters : JSONSerializableScriptableObject
         if (_fieldsToShowInGame == null)
             _fieldsToShowInGame = new List<string>();
 
-        if (ShowsField(fieldName))
+        if (IsShowsField(fieldName))
             _fieldsToShowInGame.Remove(fieldName);
         else
             _fieldsToShowInGame.Add(fieldName);
     }
-
-    public List<string> FieldsToShowInGame => _fieldsToShowInGame;
 }

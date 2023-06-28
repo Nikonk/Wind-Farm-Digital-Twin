@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(RectTransform))]
 public class Minimap : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    public Vector2 terrainSize;
+    [SerializeField] private Vector2 _terrainSize;
     private Vector2 _uiSize;
     
     private Vector2 _lastPointerPosition;
@@ -13,13 +13,15 @@ public class Minimap : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private void Start()
     {
         Canvas.ForceUpdateCanvases();
+
         _uiSize = GetComponent<RectTransform>().sizeDelta;
         _lastPointerPosition = Input.mousePosition;
     }
 
     private void Update()
     {
-        if (!_dragging) return;
+        if (!_dragging) 
+            return;
 
         Vector2 delta = (Vector2) Input.mousePosition - _lastPointerPosition;
         _lastPointerPosition = Input.mousePosition;
@@ -28,11 +30,11 @@ public class Minimap : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             Vector2 uiPos =
                 (new Vector2(Input.mousePosition.x, Input.mousePosition.y) /
-                GameManager.Instance.canvasScaleFactor);
+                 GameManager.Instance.CanvasScaleFactor);
             Vector3 realPos = new Vector3(
-                uiPos.x / _uiSize.x * terrainSize.x,
+                uiPos.x / _uiSize.x * _terrainSize.x,
                 0f,
-                uiPos.y / _uiSize.y * terrainSize.y
+                uiPos.y / _uiSize.y * _terrainSize.y
             );
             realPos = Utils.ProjectOnTerrain(realPos);
             EventManager.TriggerEvent("MoveCamera", realPos);

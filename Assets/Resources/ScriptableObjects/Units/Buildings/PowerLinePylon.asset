@@ -15,11 +15,12 @@ MonoBehaviour:
   _code: PowerLinePylon
   _unitName: Power Line Pylon
   _description: Power line pylon for transmission electricity
-  _healthpoints: 10
   _prefab: {fileID: 5617736343257571034, guid: c662dc500d8c955449a6dd9054e15878, type: 3}
   _cost:
-  - code: 0
-    amount: 10
+  - _resource: 0
+    _amount: 125
   _skills: []
-  _canProduce: 
-  _canConsume: 
+  _productionModels: []
+  _consumptionModels: []
+  _transferModels:
+  - {fileID: 11400000, guid: 894f11fe9adbd544abc102914b4ee8c4, type: 2}

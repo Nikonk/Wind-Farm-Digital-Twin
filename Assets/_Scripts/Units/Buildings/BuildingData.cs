@@ -9,9 +9,14 @@ public class BuildingData : UnitData
 
     [SerializeField]
     private List<ConsumptionModel> _consumptionModels;
+
+    [SerializeField]
+    private List<TransferModel> _transferModels;
     
-    public override bool IsHasProduction { get => _productionModels.Count > 0; }
-    public override bool IsHasConsumption { get => _consumptionModels.Count > 0; }
-    public override List<ProductionModel> ProductionModels { get => _productionModels; }
-    public override List<ConsumptionModel> ConsumptionModels { get => _consumptionModels; }
+    public override bool IsHasProduction => _productionModels.Count > 0;
+    public override bool IsHasConsumption => _consumptionModels.Count > 0;
+    public override bool IsHasTransfer => _transferModels == null ? false : _transferModels.Count > 0;
+    public override List<ProductionModel> ProductionModels => _productionModels;
+    public override List<ConsumptionModel> ConsumptionModels => _consumptionModels;
+    public override List<TransferModel> TransferModels => _transferModels;
 }

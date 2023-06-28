@@ -1,6 +1,9 @@
 using System.Collections.Generic;
-using UnityEngine.AI;
+using System.Collections.ObjectModel;
+using System.Linq;
+using UnityEngine;
 
+[System.Serializable]
 public enum InGameResource
 {
     Money,
@@ -8,27 +11,36 @@ public enum InGameResource
     Energy
 }
 
-public class Globals 
+public static class Globals
 {
-    public static int TERRAIN_LAYER_MASK = 1 << 8;
-    public static int FLAT_TERRAIN_LAYER_MASK = 1 << 10;
+    public static List<UnitManager> SelectedUnits = new List<UnitManager>();
 
-    public static BuildingData[] BUILDING_DATA;
-
-    public static NavMeshSurface NAV_MESH_SURFACE;
-
-    public static Dictionary<InGameResource, GameResource> GAME_RESOURCES =
+    private static Dictionary<InGameResource, GameResource> _gameResources =
         new Dictionary<InGameResource, GameResource>()
     {
-        {InGameResource.Money, new GameResource("Money", 1000)},
-        {InGameResource.Wind, new GameResource("Wind", 11)},
-        {InGameResource.Energy, new GameResource("Energy", 0)}
+        {InGameResource.Money, new GameResource(InGameResource.Money, 1000)},
+        {InGameResource.Wind, new GameResource(InGameResource.Wind, 11)},
+        {InGameResource.Energy, new GameResource(InGameResource.Wind, 0)}
     };
+    private static ReadOnlyDictionary<InGameResource, GameResource> _readonlyDictionary =
+        new ReadOnlyDictionary<InGameResource, GameResource>(_gameResources);
 
-    public static List<UnitManager> SELECTED_UNITS = new List<UnitManager>();
+    private static int _terrainLayerMask = 1 << 8;
+    private static int _flatTerrainLayerMask = 1 << 10;
+    private static int _unitLayerMask = 1 << 12;
 
-    public static void UpdateNavMeshSurface()
+    public static ReadOnlyCollection<BuildingData> BuildingData { get; private set; }
+    public static ReadOnlyDictionary<InGameResource, GameResource> GameResources => _readonlyDictionary;
+    public static int TerrainLayerMask => _terrainLayerMask;
+    public static int FlatTerrainLayerMask => _flatTerrainLayerMask;
+    public static int UnitLayerMask => _unitLayerMask;
+
+    public static void LoadBuildingData()
     {
-        NAV_MESH_SURFACE.UpdateNavMesh(NAV_MESH_SURFACE.navMeshData);
+        var buildingData = Resources.LoadAll<BuildingData>("ScriptableObjects/Units/Buildings") as BuildingData[];
+
+        ReadOnlyCollection<BuildingData> readonlyBuildingData = new ReadOnlyCollection<BuildingData>(buildingData.ToList());
+
+        Globals.BuildingData = readonlyBuildingData;
     }
 }

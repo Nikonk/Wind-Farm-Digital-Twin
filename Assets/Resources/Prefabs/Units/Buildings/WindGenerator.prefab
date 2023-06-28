@@ -64,7 +64,7 @@ GameObject:
   - component: {fileID: 5781443243582092126}
   - component: {fileID: 5781443243582092112}
   - component: {fileID: 1513280636343343878}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: WindGenerator
   m_TagString: Unit
   m_Icon: {fileID: 0}

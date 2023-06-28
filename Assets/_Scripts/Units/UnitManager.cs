@@ -6,8 +6,7 @@ public class UnitManager : MonoBehaviour
 {
     [SerializeField] private GameObject _selectionCircle;
 
-    protected BoxCollider _collider;
-    public virtual Unit Unit { get; set; }
+    protected BoxCollider Collider;
 
     private void OnMouseDown()
     {
@@ -19,21 +18,25 @@ public class UnitManager : MonoBehaviour
             );
     }
 
+    public virtual Unit Unit { get; set; }
+
     public void Initialize(Unit unit)
     {
-        _collider = GetComponent<BoxCollider>();
+        Collider = GetComponent<BoxCollider>();
         Unit = unit;
     }
 
     private void _SelectUtil()
     {
-        if (Globals.SELECTED_UNITS.Contains(this)) return;
-        Globals.SELECTED_UNITS.Add(this);
+        if (Globals.SelectedUnits.Contains(this)) 
+            return;
+
+        Globals.SelectedUnits.Add(this);
         _selectionCircle.SetActive(true);
         EventManager.TriggerEvent("SelectUnit", Unit);
     }
 
-    public void Select() { Select(false, false); }
+    public void Select() => Select(false, false);
     public void Select(bool singleClick, bool holdingShift)
     {
         if (!singleClick)
@@ -44,14 +47,16 @@ public class UnitManager : MonoBehaviour
 
         if (!holdingShift)
         {
-            List<UnitManager> selectedUnits = new List<UnitManager>(Globals.SELECTED_UNITS);
+            List<UnitManager> selectedUnits = new List<UnitManager>(Globals.SelectedUnits);
+
             foreach (UnitManager um in selectedUnits)
                 um.Deselect();
+
             _SelectUtil();
         }
         else
         {
-            if (!Globals.SELECTED_UNITS.Contains(this))
+            if (!Globals.SelectedUnits.Contains(this))
                 _SelectUtil();
             else
                 Deselect();
@@ -60,14 +65,13 @@ public class UnitManager : MonoBehaviour
 
     public void Deselect()
     {
-        if (!Globals.SELECTED_UNITS.Contains(this)) return;
-        Globals.SELECTED_UNITS.Remove(this);
+        if (!Globals.SelectedUnits.Contains(this)) 
+            return;
+
+        Globals.SelectedUnits.Remove(this);
         _selectionCircle.SetActive(false);
         EventManager.TriggerEvent("DeselectUnit", Unit);
     }
 
-    protected virtual bool IsActive()
-    {
-        return true;
-    }
+    protected virtual bool IsActive() => true;
 }

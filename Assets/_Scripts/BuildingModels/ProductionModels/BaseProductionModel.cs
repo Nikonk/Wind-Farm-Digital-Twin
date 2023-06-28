@@ -6,21 +6,12 @@ public class BaseProductionModel : ProductionModel
 {
     [SerializeField]
     private List<ResourceValue> _production = new List<ResourceValue>();
-    [SerializeField]
-    private float _consumingRate = 3f;
+
+    public override Dictionary<InGameResource, int> Productions => Utils.ConvertResourceValueListToDictionary(_production);
 
     public override void Produce()
     {
         foreach (var resource in _production)
-            Globals.GAME_RESOURCES[resource.code].ChangeAmount(resource.amount);
-    }
-
-    public override float ProducingRate
-    {
-        get => _consumingRate;
-    }
-    public override Dictionary<InGameResource, int> Production
-    {
-        get => Utils.ConvertResourceValueListToDictionary(_production);
+            Globals.GameResources[resource.Resource].ChangeAmount(resource.Amount);
     }
 }

@@ -3,8 +3,7 @@ using UnityEngine;
 
 public abstract class ProductionModel : ScriptableObject
 {
+    public abstract Dictionary<InGameResource, int> Productions { get; }
+
     public abstract void Produce();
-    
-    public abstract float ProducingRate { get; }
-    public abstract Dictionary<InGameResource, int> Production { get; }
 }

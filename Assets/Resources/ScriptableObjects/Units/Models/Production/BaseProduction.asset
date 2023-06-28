@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 776d0bb824d54d54cb0ed577da2105f5, type: 3}
   m_Name: BaseProduction
   m_EditorClassIdentifier: 
-  _production: []
-  _consumingRate: 3
+  _production:
+  - _resource: 2
+    _amount: 5

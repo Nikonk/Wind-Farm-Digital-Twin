@@ -1,12 +1,18 @@
-[System.Serializable]
+using System;
+using UnityEngine;
+
+[Serializable]
 public class ResourceValue
 {
-    public InGameResource code;
-    public int amount = 0;
+    [SerializeField] private InGameResource _resource;
+    [SerializeField] private int _amount;
 
-    public ResourceValue(InGameResource code, int amount)
+    public ResourceValue(InGameResource resource, int amount)
     {
-        this.code = code;
-        this.amount = amount;
+        _resource = resource;
+        _amount = amount;
     }
+
+    public InGameResource Resource => _resource;
+    public int Amount => _amount;
 }

@@ -7,28 +7,31 @@ using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    
     private BuildingPlacer _buildingPlacer;
     private Dictionary<InGameResource, TMP_Text> _resourceTexts;
     private Dictionary<string, Button> _buildingButtons;
 
-    public Transform buildingMenu;
-    public GameObject buildingButtonPrefab;
-    public Transform resourcesUIParent;
-    public GameObject gameResourceDisplayPrefab;
-    
-    public GameObject infoPanel;
+    [Header("Building")]
+    [SerializeField] private Transform _buildingMenu;
+    [SerializeField] private GameObject _buildingButtonPrefab;
+    [SerializeField] private RectTransform _placedBuildingProductionRectTransform;
+
+    [Header("Resources")]
+    [SerializeField] private Transform _resourcesUIParent;
+    [SerializeField] private GameObject _gameResourceDisplayPrefab;
+    [SerializeField] private GameObject _gameResourceCostPrefab;
+
+    [Header("Info Panel")]
+    [SerializeField] private GameObject _infoPanel;
     private TMP_Text _infoPanelTitleText;
     private TMP_Text _infoPanelDescriptionText;
     private Transform _infoPanelResourcesCostParent;
 
-    public Transform selectedUnitsListParent;
-    public GameObject selectedUnitInfoPrefab;
-
-    public Transform selectionGroupsParent;
-
-    public GameObject gameResourceCostPrefab;
-    public GameObject selectedUnitMenu;
+    [Header("Selected Unit")]
+    [SerializeField] private Transform _selectedUnitsListParent;
+    [SerializeField] private GameObject _selectedUnitInfoPrefab;
+    [SerializeField] private GameObject _selectedUnitMenu;
+    [SerializeField] private Transform _selectionGroupsParent;
     private RectTransform _selectedUnitContentRectTransform;
     private RectTransform _selectedUnitGlobalButtonsRectTransform;
     private TMP_Text _selectedUnitTitleText;
@@ -36,68 +39,69 @@ public class UIManager : MonoBehaviour
     private Transform _selectedUnitResourcesProductionParent;
     private Transform _selectedUnitActionButtonsParent;
 
+    [Header("Skill")]
     [SerializeField] private GameObject _unitSkillButtonPrefab;
     private Unit _selectedUnit;
 
-    public GameObject gameSettingsPanel;
-    public Transform gameSettingsMenusParent;
-    public TMP_Text gameSettingsContentName;
-    public Transform gameSettingsContentParent;
-    public GameObject gameSettingsMenuButtonPrefab;
-    public GameObject gameSettingsParameterPrefab;
-    public GameObject sliderPrefab;
-    public GameObject togglePrefab;
+    [Header("Game Settings")]
+    [SerializeField] private GameObject _gameSettingsPanel;
+    [SerializeField] private Transform _gameSettingsMenusParent;
+    [SerializeField] private TMP_Text _gameSettingsContentName;
+    [SerializeField] private Transform _gameSettingsContentParent;
+    [SerializeField] private GameObject _gameSettingsMenuButtonPrefab;
+    [SerializeField] private GameObject _gameSettingsParameterPrefab;
+    [SerializeField] private GameObject _sliderPrefab;
+    [SerializeField] private GameObject _togglePrefab;
     private Dictionary<string, GameParameters> _gameParameters;
-
-    [Header("Placed Building Production")]
-    public RectTransform placedBuildingProductionRectTransform;
 
     private void Awake()
     {
         _buildingPlacer = GetComponent<BuildingPlacer>();
         _resourceTexts = new Dictionary<InGameResource, TMP_Text>();
 
-        foreach (KeyValuePair<InGameResource, GameResource> pair in Globals.GAME_RESOURCES)
+        foreach (KeyValuePair<InGameResource, GameResource> pair in Globals.GameResources)
         {
-            GameObject display = Instantiate(gameResourceDisplayPrefab, resourcesUIParent);
+            GameObject display = Instantiate(_gameResourceDisplayPrefab, _resourcesUIParent);
+
             display.name = pair.Key.ToString();
             _resourceTexts[pair.Key] = display.transform.Find("Text").GetComponent<TMP_Text>();
             display.transform.Find("Icon").GetComponent<Image>().sprite = 
                         Resources.Load<Sprite>($"Textures/GameResources/{pair.Key}");
-            _SetResourceText(pair.Key, pair.Value.Amount);
+
+            SetResourceText(pair.Key, pair.Value.Amount);
         }
 
         _buildingButtons = new Dictionary<string, Button>();
-        for (int i = 0; i < Globals.BUILDING_DATA.Length; i++)
+
+        for (int i = 0; i < Globals.BuildingData.Count; i++)
         {
             GameObject button = GameObject.Instantiate(
-                buildingButtonPrefab,
-                buildingMenu);
-            BuildingData buildingData = Globals.BUILDING_DATA[i];
+                _buildingButtonPrefab,
+                _buildingMenu);
+            BuildingData buildingData = Globals.BuildingData[i];
+
             button.name = buildingData.UnitName;
             button.transform.Find("Text").GetComponent<TMP_Text>().text = buildingData.UnitName;
             button.GetComponent<BuildingButton>().Initialize(buildingData);
             Button b = button.GetComponent<Button>();
-            _AddBuildingButtonListener(b, i);
+            AddBuildingButtonListener(b, i);
             
             _buildingButtons[buildingData.Code] = b;
             
-            if (!buildingData.CanBuy())
-            {
+            if (buildingData.CanBuy() == false)
                 b.interactable = false;
-            }
         }
 
-        Transform infoPanelTransform = infoPanel.transform;
+        Transform infoPanelTransform = _infoPanel.transform;
         _infoPanelTitleText = infoPanelTransform.Find("Content/Title").GetComponent<TMP_Text>();
         _infoPanelDescriptionText = infoPanelTransform.Find("Content/Description").GetComponent<TMP_Text>();
         _infoPanelResourcesCostParent = infoPanelTransform.Find("Content/ResourcesCost");
-        _ShowInfoPanel(false);
+        ShowInfoPanel(false);
 
         for (int i = 1; i <= 9; i++)
             ToggleSelectionGroupButton(i, false);
         
-        Transform selectedUnitMenuTransform = selectedUnitMenu.transform;
+        Transform selectedUnitMenuTransform = _selectedUnitMenu.transform;
         _selectedUnitContentRectTransform = selectedUnitMenuTransform
             .Find("Content").GetComponent<RectTransform>();
         _selectedUnitGlobalButtonsRectTransform = selectedUnitMenuTransform
@@ -111,108 +115,167 @@ public class UIManager : MonoBehaviour
         _selectedUnitActionButtonsParent = selectedUnitMenuTransform
             .Find("SpecificActions");
         
-        _ShowSelectedUnitMenu(false);
+        ShowSelectedUnitMenu(false);
 
-        gameSettingsPanel.SetActive(false);
-        GameParameters[] gameParametersList = Resources.LoadAll<GameParameters>(
-            "ScriptableObjects/Parameters");
+        _gameSettingsPanel.SetActive(false);
+        GameParameters[] gameParametersList = Resources.LoadAll<GameParameters>("ScriptableObjects/Parameters");
         _gameParameters = new Dictionary<string, GameParameters>();
+
         foreach (GameParameters p in gameParametersList)
             _gameParameters[p.GetParametersName()] = p;
-        _SetupGameSettingsPanel();
 
-        placedBuildingProductionRectTransform.gameObject.SetActive(false);
+        SetupGameSettingsPanel();
+
+        _placedBuildingProductionRectTransform.gameObject.SetActive(false);
     }
 
     private void OnEnable()
     {
-        EventManager.AddListener("UpdateResourceTexts", _OnUpdateResourceTexts);
-        EventManager.AddListener("CheckBuildingButtons", _OnCheckBuildingButtons);
-        EventManager.AddListener("HoverBuildingButton", _OnHoverBuildingButton);
-        EventManager.AddListener("UnhoverBuildingButton", _OnUnhoverBuildingButton);
-        EventManager.AddListener("SelectUnit", _OnSelectUnit);
-        EventManager.AddListener("DeselectUnit", _OnDeselectUnit);
-        EventManager.AddListener("UpdatePlacedBuildingProduction", _OnUpdatePlacedBuildingProduction);
-        EventManager.AddListener("PlaceBuildingOn", _OnPlaceBuildingOn);
-        EventManager.AddListener("PlaceBuildingOff", _OnPlaceBuildingOff);
+        EventManager.AddListener("UpdateResourceTexts", OnUpdateResourceTexts);
+        EventManager.AddListener("CheckBuildingButtons", OnCheckBuildingButtons);
+        EventManager.AddListener("HoverBuildingButton", OnHoverBuildingButton);
+        EventManager.AddListener("UnhoverBuildingButton", OnUnhoverBuildingButton);
+        EventManager.AddListener("SelectUnit", OnSelectUnit);
+        EventManager.AddListener("DeselectUnit", OnDeselectUnit);
+        EventManager.AddListener("UpdatePlacedBuildingProduction", OnUpdatePlacedBuildingProduction);
+        EventManager.AddListener("PlaceBuildingOn", OnPlaceBuildingOn);
+        EventManager.AddListener("PlaceBuildingOff", OnPlaceBuildingOff);
     }
 
     private void OnDisable()
     {
-        EventManager.RemoveListener("UpdateResourceTexts", _OnUpdateResourceTexts);
-        EventManager.RemoveListener("CheckBuildingButtons", _OnCheckBuildingButtons);
-        EventManager.RemoveListener("HoverBuildingButton", _OnHoverBuildingButton);
-        EventManager.RemoveListener("UnhoverBuildingButton", _OnUnhoverBuildingButton);
-        EventManager.RemoveListener("SelectUnit", _OnSelectUnit);
-        EventManager.RemoveListener("DeselectUnit", _OnDeselectUnit);
-        EventManager.RemoveListener("UpdatePlacedBuildingProduction", _OnUpdatePlacedBuildingProduction);
-        EventManager.RemoveListener("PlaceBuildingOn", _OnPlaceBuildingOn);
-        EventManager.RemoveListener("PlaceBuildingOff", _OnPlaceBuildingOff);
+        EventManager.RemoveListener("UpdateResourceTexts", OnUpdateResourceTexts);
+        EventManager.RemoveListener("CheckBuildingButtons", OnCheckBuildingButtons);
+        EventManager.RemoveListener("HoverBuildingButton", OnHoverBuildingButton);
+        EventManager.RemoveListener("UnhoverBuildingButton", OnUnhoverBuildingButton);
+        EventManager.RemoveListener("SelectUnit", OnSelectUnit);
+        EventManager.RemoveListener("DeselectUnit", OnDeselectUnit);
+        EventManager.RemoveListener("UpdatePlacedBuildingProduction", OnUpdatePlacedBuildingProduction);
+        EventManager.RemoveListener("PlaceBuildingOn", OnPlaceBuildingOn);
+        EventManager.RemoveListener("PlaceBuildingOff", OnPlaceBuildingOff);
     }
 
-    private void _AddBuildingButtonListener(Button b, int i)
+    public void SetInfoPanel(UnitData data)
+    {
+        if (data.Code != "")
+            _infoPanelTitleText.text = data.Code;
+
+        if (data.Description != "")
+            _infoPanelDescriptionText.text = data.Description;
+
+        foreach (Transform child in _infoPanelResourcesCostParent)
+            Destroy(child.gameObject);
+
+        if (data.Cost.Count > 0)
+        {
+            GameObject g;
+            Transform t;
+            foreach (ResourceValue resource in data.Cost)
+            {
+                g = GameObject.Instantiate(_gameResourceDisplayPrefab, _infoPanelResourcesCostParent);
+                t = g.transform;
+                t.Find("Icon").GetComponent<Image>().sprite =
+                    Resources.Load<Sprite>($"Textures/GameResources/{resource.Resource}");
+                t.Find("Text").GetComponent<TMP_Text>().text = resource.Amount.ToString();
+                Color invalidTextColor = Color.red;
+                if (Globals.GameResources[resource.Resource].Amount < resource.Amount)
+                    t.Find("Text").GetComponent<TMP_Text>().color = invalidTextColor;
+            }
+        }
+    }
+
+    public void ToggleSelectionGroupButton(int groupIndex, bool on)
+    {
+        _selectionGroupsParent.Find(groupIndex.ToString()).gameObject.SetActive(on);
+    }
+
+    public void ToggleGameSettingsPanel()
+    {
+        bool showGameSettingsPanel = !_gameSettingsPanel.activeSelf;
+        _gameSettingsPanel.SetActive(showGameSettingsPanel);
+        EventManager.TriggerEvent(showGameSettingsPanel ? "PauseGame" : "ResumeGame");
+    }
+
+    public void DestroySelectedUnit()
+    {
+        GameObject selectedUnitGO = _selectedUnit.Transform.gameObject;
+        GameManager.Instance.RemoveOperatingUnit(_selectedUnit);
+
+        selectedUnitGO.GetComponent<UnitManager>().Deselect();
+
+        foreach (ResourceValue resource in _selectedUnit.Data.Cost)
+        {
+            int destroyCompensation = (int)Mathf.Floor(resource.Amount / 2);
+            Globals.GameResources[resource.Resource].ChangeAmount(destroyCompensation);
+        }
+
+        OnUpdateResourceTexts();
+        OnCheckBuildingButtons();
+
+        Destroy(_selectedUnit.Transform.gameObject);
+    }
+
+    private void AddBuildingButtonListener(Button b, int i)
     {
         b.onClick.AddListener(() => _buildingPlacer.SelectPlacedBuilding(i));
     }  
 
-    private void _SetResourceText(InGameResource resource, int value)  
+    private void SetResourceText(InGameResource resource, int value)  
     {
         _resourceTexts[resource].text = value.ToString();
     }
 
-    private void _OnUpdateResourceTexts()
+    private void OnUpdateResourceTexts()
     {
-        foreach (KeyValuePair<InGameResource, GameResource> pair in Globals.GAME_RESOURCES)
-        {
-            _SetResourceText(pair.Key, pair.Value.Amount);
-        }
+        foreach (KeyValuePair<InGameResource, GameResource> pair in Globals.GameResources)
+            SetResourceText(pair.Key, pair.Value.Amount);
     }
 
-    private void _OnCheckBuildingButtons()
+    private void OnCheckBuildingButtons()
     {
-        foreach (BuildingData data in Globals.BUILDING_DATA)
-        {
+        foreach (BuildingData data in Globals.BuildingData)
             _buildingButtons[data.Code].interactable = data.CanBuy();
-        }
     }
 
-    private void _OnHoverBuildingButton(object data)
+    private void OnHoverBuildingButton(object data)
     {
         SetInfoPanel((UnitData)data);
-        _ShowInfoPanel(true);
+        ShowInfoPanel(true);
     }
 
-    private void _OnUnhoverBuildingButton()
+    private void OnUnhoverBuildingButton()
     {
-        _ShowInfoPanel(false);
+        ShowInfoPanel(false);
     }
 
-    private void _OnSelectUnit(object data)
-    {
-        Unit unit = (Unit)data;
-        _AddSelectedUnitToUIList(unit);
-        _SetSelectedUnitMenu(unit);
-        _ShowSelectedUnitMenu(true);
-    }
-
-    private void _OnDeselectUnit(object data)
+    private void OnSelectUnit(object data)
     {
         Unit unit = (Unit)data;
-        _RemoveSelectedUnitFromUIList(unit.Code);
-        if (Globals.SELECTED_UNITS.Count == 0)
-            _ShowSelectedUnitMenu(false);
+        AddSelectedUnitToUIList(unit);
+        SetSelectedUnitMenu(unit);
+        ShowSelectedUnitMenu(true);
+    }
+
+    private void OnDeselectUnit(object data)
+    {
+        Unit unit = (Unit)data;
+        RemoveSelectedUnitFromUIList(unit.Code);
+
+        if (Globals.SelectedUnits.Count == 0)
+            ShowSelectedUnitMenu(false);
         else
-            _SetSelectedUnitMenu(Globals.SELECTED_UNITS[Globals.SELECTED_UNITS.Count - 1].Unit);
+            SetSelectedUnitMenu(Globals.SelectedUnits[Globals.SelectedUnits.Count - 1].Unit);
     }
 
-    private void _ShowInfoPanel(bool show)
+    private void ShowInfoPanel(bool show)
     {
-        infoPanel.SetActive(show);
+        _infoPanel.SetActive(show);
     }
 
-    private void _AddSelectedUnitToUIList(Unit unit)
+    private void AddSelectedUnitToUIList(Unit unit)
     {
-        Transform alreadyInstantiatedChild = selectedUnitsListParent.Find(unit.Code);
+        Transform alreadyInstantiatedChild = _selectedUnitsListParent.Find(unit.Code);
+
         if (alreadyInstantiatedChild != null)
         {
             TMP_Text t = alreadyInstantiatedChild.Find("Count").GetComponent<TMP_Text>();
@@ -222,7 +285,7 @@ public class UIManager : MonoBehaviour
         else
         {
             GameObject g = GameObject.Instantiate(
-                selectedUnitInfoPrefab, selectedUnitsListParent);
+                _selectedUnitInfoPrefab, _selectedUnitsListParent);
             g.name = unit.Code;
             Transform t = g.transform;
             t.Find("Count").GetComponent<TMP_Text>().text = "1";
@@ -230,41 +293,47 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private void _RemoveSelectedUnitFromUIList(string code)
+    private void RemoveSelectedUnitFromUIList(string code)
     {
-        Transform listItem = selectedUnitsListParent.Find(code);
-        if (listItem == null) return;
+        Transform listItem = _selectedUnitsListParent.Find(code);
+
+        if (listItem == null)
+            return;
+
         TMP_Text t = listItem.Find("Count").GetComponent<TMP_Text>();
         int count = int.Parse(t.text);
         count -= 1;
+
         if (count == 0)
             DestroyImmediate(listItem.gameObject);
         else
             t.text = count.ToString();
     }
 
-    private void _AddUnitSkillButtonListener(Button b, int i)
+    private void AddUnitSkillButtonListener(Button b, int i)
     {
         b.onClick.AddListener(() => _selectedUnit.TriggerSkill(i));
     }
 
-    private void _SetSelectedUnitMenu(Unit unit)
+    private void SetSelectedUnitMenu(Unit unit)
     {
         _selectedUnit = unit;
         _selectedUnitTitleText.text = unit.Data.UnitName;
 
         foreach (Transform child in _selectedUnitResourcesProductionParent)
             Destroy(child.gameObject);
+
         if (unit.Data.IsHasProduction)
         {
             GameObject g;
             Transform t;
+
             foreach (var productionModel in unit.Data.ProductionModels)
             {
-                foreach (var resource in productionModel.Production)
+                foreach (var resource in productionModel.Productions)
                 {
                     g = GameObject.Instantiate(
-                        gameResourceCostPrefab, _selectedUnitResourcesProductionParent);
+                        _gameResourceCostPrefab, _selectedUnitResourcesProductionParent);
                     t = g.transform;
                     t.Find("Text").GetComponent<TMP_Text>().text = $"+{resource.Value}";
                     t.Find("Icon").GetComponent<Image>().sprite =
@@ -275,6 +344,7 @@ public class UIManager : MonoBehaviour
 
         foreach (Transform child in _selectedUnitActionButtonsParent)
             Destroy(child.gameObject);
+
         if (unit.SkillManagers.Count > 0)
         {
             GameObject g;
@@ -289,87 +359,49 @@ public class UIManager : MonoBehaviour
                 unit.SkillManagers[i].SetButton(b);
                 t.Find("Text").GetComponent<TMP_Text>().text =
                     unit.SkillManagers[i].Skill.SkillName;
-                _AddUnitSkillButtonListener(b, i);
+                AddUnitSkillButtonListener(b, i);
             }
         }
     }
 
-    private void _ShowSelectedUnitMenu(bool show)
+    private void ShowSelectedUnitMenu(bool show)
     {
-        selectedUnitMenu.SetActive(show);
-        buildingMenu.gameObject.SetActive(!show);
+        _selectedUnitMenu.SetActive(show);
+        _buildingMenu.gameObject.SetActive(!show);
     }
 
-    public void SetInfoPanel(UnitData data)
-    {
-        if (data.Code != "")
-            _infoPanelTitleText.text = data.Code;
-        if (data.Description != "")
-            _infoPanelDescriptionText.text = data.Description;
-        
-        foreach (Transform child in _infoPanelResourcesCostParent)
-            Destroy(child.gameObject);
-        
-        if (data.Cost.Count > 0)
-        {
-            GameObject g;
-            Transform t;
-            foreach (ResourceValue resource in data.Cost)
-            {
-                g = GameObject.Instantiate(gameResourceDisplayPrefab, _infoPanelResourcesCostParent);
-                t = g.transform;
-                t.Find("Icon").GetComponent<Image>().sprite =
-                    Resources.Load<Sprite>($"Textures/GameResources/{resource.code}");
-                t.Find("Text").GetComponent<TMP_Text>().text = resource.amount.ToString();
-                Color invalidTextColor = Color.red;
-                if (Globals.GAME_RESOURCES[resource.code].Amount < resource.amount)
-                    t.Find("Text").GetComponent<TMP_Text>().color = invalidTextColor;
-            }
-        }
-    }
-
-    public void ToggleSelectionGroupButton(int groupIndex, bool on)
-    {
-        selectionGroupsParent.Find(groupIndex.ToString()).gameObject.SetActive(on);
-    }
-
-    public void ToggleGameSettingsPanel()
-    {
-        bool showGameSettingsPanel = !gameSettingsPanel.activeSelf;
-        gameSettingsPanel.SetActive(showGameSettingsPanel);
-        EventManager.TriggerEvent(showGameSettingsPanel ? "PauseGame" : "ResumeGame");
-    }
-
-    private void _SetupGameSettingsPanel()
+    private void SetupGameSettingsPanel()
     {
         GameObject g; string n;
         List<string> availableMenus = new List<string>();
+
         foreach (GameParameters parameters in _gameParameters.Values)
         {
-            if (parameters.FieldsToShowInGame.Count == 0) continue;
+            if (parameters.FieldsToShowInGame.Count == 0)
+                continue;
 
             g = GameObject.Instantiate(
-                gameSettingsMenuButtonPrefab, gameSettingsMenusParent);
+                _gameSettingsMenuButtonPrefab, _gameSettingsMenusParent);
             n = parameters.GetParametersName();
             g.transform.Find("Text").GetComponent<TMP_Text>().text = n;
-            _AddGameSettingsPanelMenuListener(g.GetComponent<Button>(), n);
+            AddGameSettingsPanelMenuListener(g.GetComponent<Button>(), n);
             availableMenus.Add(n);
         }
 
         if (availableMenus.Count > 0)
-            _SetGameSettingsContent(availableMenus[0]);
+            SetGameSettingsContent(availableMenus[0]);
     }
 
-    private void _AddGameSettingsPanelMenuListener(Button b, string menu)
+    private void AddGameSettingsPanelMenuListener(Button b, string menu)
     {
-        b.onClick.AddListener(() => _SetGameSettingsContent(menu));
+        b.onClick.AddListener(() => SetGameSettingsContent(menu));
     }
 
-    private void _SetGameSettingsContent(string menu)
+    private void SetGameSettingsContent(string menu)
     {
-        gameSettingsContentName.text = menu;
+        _gameSettingsContentName.text = menu;
 
-        foreach (Transform child in gameSettingsContentParent)
+        foreach (Transform child in _gameSettingsContentParent)
             Destroy(child.gameObject);
 
         GameParameters parameters = _gameParameters[menu];
@@ -380,44 +412,50 @@ public class UIManager : MonoBehaviour
         float contentWidth = 534f;
         float parameterNameWidth = 210f;
         float fieldHeight = 32f;
+
         foreach (string fieldName in parameters.FieldsToShowInGame)
         {
-            gWrapper = GameObject.Instantiate(
-                gameSettingsParameterPrefab, gameSettingsContentParent);
-            gWrapper.transform.Find("Text").GetComponent<TMP_Text>().text =
-                fieldName;// Utils.CapitalizeWords(fieldName);
+            gWrapper = GameObject.Instantiate(_gameSettingsParameterPrefab,
+                                              _gameSettingsContentParent);
+            gWrapper.transform.Find("Text").GetComponent<TMP_Text>().text = fieldName;
 
             gEditor = null;
             FieldInfo field = ParametersType.GetField(fieldName);
-            if (field.FieldType == typeof(bool))
-            {
-                gEditor = Instantiate(togglePrefab);
-                Toggle t = gEditor.GetComponent<Toggle>();
-                t.isOn = (bool)field.GetValue(parameters);
 
-                t.onValueChanged.AddListener(delegate {
-                    _OnGameSettingsToggleValueChanged(parameters, field, fieldName, t);
-                });
-            }
-            else if (field.FieldType == typeof(int) || field.FieldType == typeof(float))
+            if (field != null)
             {
-                bool isRange = System.Attribute.IsDefined(field, typeof(RangeAttribute), false);
-                if (isRange)
+                if (field.FieldType == typeof(bool))
                 {
-                    RangeAttribute attr = (RangeAttribute)System.Attribute.GetCustomAttribute(field, typeof(RangeAttribute));
-                    gEditor = Instantiate(sliderPrefab);
-                    Slider s = gEditor.GetComponent<Slider>();
-                    s.minValue = attr.min;
-                    s.maxValue = attr.max;
-                    s.wholeNumbers = field.FieldType == typeof(int);
-                    s.value = field.FieldType == typeof(int)
-                        ? (int)field.GetValue(parameters)
-                        : (float)field.GetValue(parameters);
-                    
-                    s.onValueChanged.AddListener(delegate
+                    gEditor = Instantiate(_togglePrefab);
+                    Toggle t = gEditor.GetComponent<Toggle>();
+                    t.isOn = (bool)field.GetValue(parameters);
+
+                    t.onValueChanged.AddListener(delegate
                     {
-                        _OnGameSettingsSliderValueChanged(parameters, field, fieldName, s);
+                        OnGameSettingsToggleValueChanged(parameters, field, fieldName, t);
                     });
+                }
+                else if (field.FieldType == typeof(int) || field.FieldType == typeof(float))
+                {
+                    bool isRange = System.Attribute.IsDefined(field, typeof(RangeAttribute), false);
+
+                    if (isRange)
+                    {
+                        RangeAttribute attr = (RangeAttribute)System.Attribute.GetCustomAttribute(field, typeof(RangeAttribute));
+                        gEditor = Instantiate(_sliderPrefab);
+                        Slider s = gEditor.GetComponent<Slider>();
+                        s.minValue = attr.min;
+                        s.maxValue = attr.max;
+                        s.wholeNumbers = field.FieldType == typeof(int);
+                        s.value = field.FieldType == typeof(int)
+                            ? (int)field.GetValue(parameters)
+                            : (float)field.GetValue(parameters);
+
+                        s.onValueChanged.AddListener(delegate
+                        {
+                            OnGameSettingsSliderValueChanged(parameters, field, fieldName, s);
+                        });
+                    }
                 }
             }
             rtWrapper = gWrapper.GetComponent<RectTransform>();
@@ -435,85 +473,69 @@ public class UIManager : MonoBehaviour
             i++;
         }
 
-        RectTransform rt = gameSettingsContentParent.GetComponent<RectTransform>();
+        RectTransform rt = _gameSettingsContentParent.GetComponent<RectTransform>();
         Vector2 size = rt.sizeDelta;
         size.y = i * fieldHeight;
         rt.sizeDelta = size;
     }
 
-    private void _OnGameSettingsToggleValueChanged(GameParameters parameters,
-                                                   FieldInfo field,
-                                                   string gameParameter,
-                                                   Toggle change)
+    private void OnGameSettingsToggleValueChanged(GameParameters parameters,
+                                                  FieldInfo field,
+                                                  string gameParameter,
+                                                  Toggle change)
     {
         field.SetValue(parameters, change.isOn);
         EventManager.TriggerEvent($"UpdateGameParameter:{gameParameter}", change.isOn);
     }
 
-    private void _OnGameSettingsSliderValueChanged(GameParameters parameters,
-                                                   FieldInfo field,
-                                                   string gameParameter,
-                                                   Slider change)
+    private void OnGameSettingsSliderValueChanged(GameParameters parameters,
+                                                  FieldInfo field,
+                                                  string gameParameter,
+                                                  Slider change)
     {
         if (field.FieldType == typeof(int))
             field.SetValue(parameters, (int)change.value);
         else
             field.SetValue(parameters, change.value);
+
         EventManager.TriggerEvent($"UpdateGameParameter:{gameParameter}", change.value);
     }
 
-    private void _OnUpdatePlacedBuildingProduction(object data)
+    private void OnUpdatePlacedBuildingProduction(object data)
     {
         object[] values = (object[])data;
-        Dictionary<InGameResource, int> production = (Dictionary<InGameResource, int>)values[0];
+        Dictionary<InGameResource, int> production = values[0] as Dictionary<InGameResource, int>;
         Vector3 pos = (Vector3)values[1];
 
-        if (production == null) return;
+        if (production == null)
+            return;
 
-        foreach (Transform child in placedBuildingProductionRectTransform.gameObject.transform)
+        foreach (Transform child in _placedBuildingProductionRectTransform.gameObject.transform)
             Destroy(child.gameObject);
 
         GameObject g;
         Transform t;
+
         foreach (KeyValuePair<InGameResource, int> pair in production)
         {
             g = GameObject.Instantiate(
-                gameResourceCostPrefab,
-                placedBuildingProductionRectTransform.transform);
+                _gameResourceCostPrefab,
+                _placedBuildingProductionRectTransform.transform);
             t = g.transform;
             t.Find("Text").GetComponent<TMP_Text>().text = $"+{pair.Value}";
             t.Find("Icon").GetComponent<Image>().sprite = Resources.Load<Sprite>($"Textures/GameResources/{pair.Key}");            
         }
 
-        placedBuildingProductionRectTransform.sizeDelta = new Vector2(80, 24 * production.Count);
+        _placedBuildingProductionRectTransform.sizeDelta = new Vector2(80, 24 * production.Count);
     }
 
-    private void _OnPlaceBuildingOn()
+    private void OnPlaceBuildingOn()
     {
-        placedBuildingProductionRectTransform.gameObject.SetActive(true);
+        _placedBuildingProductionRectTransform.gameObject.SetActive(true);
     }
 
-    private void _OnPlaceBuildingOff()
+    private void OnPlaceBuildingOff()
     {
-        placedBuildingProductionRectTransform.gameObject.SetActive(false);
-    }
-
-    public void DestroySelectedUnit()
-    {
-        GameObject selectedUnitGO = _selectedUnit.Transform.gameObject;
-        GameManager.Instance.RemoveOperatingUnit(_selectedUnit);
-
-        selectedUnitGO.GetComponent<UnitManager>().Deselect();
-
-        foreach (ResourceValue resource in _selectedUnit.Data.Cost)
-        {
-            int destroyCompensation = (int)Mathf.Floor(resource.amount / 2);
-            Globals.GAME_RESOURCES[resource.code].ChangeAmount(destroyCompensation);
-        }
-
-        _OnUpdateResourceTexts();
-        _OnCheckBuildingButtons();
-
-        Destroy(_selectedUnit.Transform.gameObject);
+        _placedBuildingProductionRectTransform.gameObject.SetActive(false);
     }
 }

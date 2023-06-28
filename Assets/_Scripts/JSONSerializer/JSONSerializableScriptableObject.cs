@@ -17,9 +17,10 @@ public class JSONSerializableScriptableObject : ScriptableObject
         );
         string filePath = Path.Combine(dirPath, $"{name}.json");
 
-        if (!Directory.Exists(dirPath))
+        if (Directory.Exists(dirPath) == false)
             Directory.CreateDirectory(dirPath);
-        if (!File.Exists(filePath))
+
+        if (File.Exists(filePath) == false)
             File.Create(filePath).Dispose();
 
         string json = JsonUtility.ToJson(this);
@@ -35,7 +36,7 @@ public class JSONSerializableScriptableObject : ScriptableObject
             $"{name}.json"
         );
 
-        if (!File.Exists(filePath))
+        if (File.Exists(filePath) == false)
         {
             Debug.LogWarning($"File \"{filePath}\" not found! Getting default values.", this);
             return;

@@ -16,46 +16,47 @@ public class Building : Unit
     private BuildingManager _buildingManager;
 
     public Building(BuildingData data) : this(data, new List<ResourceValue>() { }, new List<ResourceValue>() { }) { }
-    public Building(BuildingData data, List<ResourceValue> production, List<ResourceValue> consumption) : 
-        base(data)
-    {
-        
+    public Building(BuildingData data, List<ResourceValue> production, List<ResourceValue> consumption)
+        : base(data)
+    {        
         _materials = new List<Material>();
-        Renderer[] renderers = _transform.GetComponentsInChildren<Renderer>();
+        Renderer[] renderers = Position.GetComponentsInChildren<Renderer>();
+
         foreach (Renderer rend in renderers)
         {
             Material[] materials = rend.materials;
+
             foreach (Material material in materials)
-            {
                 _materials.Add(new Material(material));
-            }
         }
-        _buildingManager = _transform.GetComponent<BuildingManager>();
+
+        _buildingManager = Position.GetComponent<BuildingManager>();
         _placement = BuildingPlacement.VALID;
+
         SetMaterials();
     }
 
     public void SetMaterials() { SetMaterials(_placement); }
+
     public void SetMaterials(BuildingPlacement placement)
     {
         List<Material> materials;
+
         if (placement == BuildingPlacement.VALID)
         {
             Material refMaterial = Resources.Load("Materials/Valid") as Material;
             materials = new List<Material>();
+
             for (int i = 0; i < _materials.Count; i++)
-            {
                 materials.Add(refMaterial);
-            }
         }
         else if (placement == BuildingPlacement.INVALID)
         {
             Material refMaterial = Resources.Load("Materials/Invalid") as Material;
             materials = new List<Material>();
+
             for (int i = 0; i < _materials.Count; i++)
-            {
                 materials.Add(refMaterial);
-            }
         }
         else if (placement == BuildingPlacement.FIXED)
         {
@@ -66,11 +67,10 @@ public class Building : Unit
             return;
         }
 
-        Renderer[] renderers = _transform.GetComponentsInChildren<Renderer>();
+        Renderer[] renderers = Position.GetComponentsInChildren<Renderer>();
+
         for (int i = 0; i < renderers.Length; i++)
-        {
             renderers[i].material = materials[i];
-        }
     }
 
     public override void Place()
@@ -79,16 +79,24 @@ public class Building : Unit
         SetMaterials();
         base.Place();
 
-        if (_data.IsHasProduction)
+        if (Data.IsHasProduction)
             GameManager.Instance.AddProducingUnits(this);
         
-        if (_data.IsHasConsumption)
+        if (Data.IsHasConsumption)
             GameManager.Instance.AddConsumingUnits(this);
+
+        if (Data.IsHasTransfer)
+        {
+            ConnectedToBuilding();
+            GameManager.Instance.AddTransferUnits(this);
+        }
     }
 
     public void CheckValidPlacement()
     {
-        if (_placement == BuildingPlacement.FIXED) return;
+        if (_placement == BuildingPlacement.FIXED) 
+            return;
+
         _placement = _buildingManager.CheckPlacement()
             ? BuildingPlacement.VALID
             : BuildingPlacement.INVALID;
@@ -97,56 +105,85 @@ public class Building : Unit
     public Dictionary<InGameResource, int> ComputeProduction()
     {
         var resultProduction = new Dictionary<InGameResource, int>();
-        foreach (var productionModel in _data.ProductionModels)
-        {
-            foreach (var production in productionModel.Production)
-            {
+
+        foreach (var productionModel in Data.ProductionModels)
+            foreach (var production in productionModel.Productions)
                 if (resultProduction.ContainsKey(production.Key))
-                {
                     resultProduction[production.Key] += production.Value;
-                }
                 else
-                {
                     resultProduction.Add(production.Key, production.Value);
-                }
-            }
-        }
+            
         return resultProduction;
     }
 
     public Dictionary<InGameResource, int> ComputeConsumption()
     {
         var resultConsumption = new Dictionary<InGameResource, int>();
-        foreach (var consumptionModel in _data.ConsumptionModels)
-        {
-            foreach (var consumption in consumptionModel.Consumption)
-            {
+
+        foreach (var consumptionModel in Data.ConsumptionModels)
+            foreach (var consumption in consumptionModel.Consumptions)
                 if (resultConsumption.ContainsKey(consumption.Key))
-                {
                     resultConsumption[consumption.Key] += consumption.Value;
-                }
                 else
-                {
                     resultConsumption.Add(consumption.Key, consumption.Value);
-                }
-            }
-        }
+
         return resultConsumption;
+    }    
+
+    public void ConnectedToBuilding(string buildingUid)
+    {
+        Collider[] colliders = Physics.OverlapSphere(Transform.position, 10f, Globals.UnitLayerMask);
+        Building pylon = null;
+
+        foreach (var collider in colliders)
+            if (buildingUid == collider.gameObject.GetComponent<BuildingManager>().Unit.Uid)
+            {
+                pylon = collider.gameObject.GetComponent<BuildingManager>().Unit as Building;
+                break;
+            }
+
+        if (pylon == null) 
+            return;
+
+        List<TransferModel> transferModels = (pylon.Data as BuildingData).TransferModels;
+
+        foreach (var transferModel in transferModels)
+            transferModel.AddTransferedProductions((Data as BuildingData).ProductionModels);
+    }
+
+    public void ConnectedToBuilding()
+    {
+        Collider[] colliders = Physics.OverlapSphere(Transform.position, 10f, Globals.UnitLayerMask);
+        var units = new List<Building>();
+
+        foreach (Collider collider in colliders)
+        {
+            BuildingManager buildingManager;
+            collider.gameObject.TryGetComponent<BuildingManager>(out buildingManager);
+            var building = buildingManager.Unit as Building;
+            units.Add(building);        
+        }
+
+        if (units == null) 
+            return;
+
+        foreach (var unit in units)
+            foreach (var productionModel in (unit.Data as BuildingData).ProductionModels)
+                foreach (var transferModel in (Data as BuildingData).TransferModels)
+                    transferModel.AddTransferedProductions(productionModel.Produce);
     }
     
     public int DataIndex
     {
         get {
-            for (int i = 0; i < Globals.BUILDING_DATA.Length; i++)
-            {
-                if (Globals.BUILDING_DATA[i].Code == _data.Code)
-                {
+            for (int i = 0; i < Globals.BuildingData.Count; i++)
+                if (Globals.BuildingData[i].Code == Data.Code)
                     return i;
-                }
-            }
+
             return -1;
         }
     }
-    public bool IsFixed { get => _placement == BuildingPlacement.FIXED; }
-    public bool HasValidPlacement { get => _placement == BuildingPlacement.VALID; }
+    public bool IsFixed => _placement == BuildingPlacement.FIXED;
+    public bool HasValidPlacement => _placement == BuildingPlacement.VALID;
+    public GameObject GameObjectOfBuilding => _buildingManager.gameObject;
 }

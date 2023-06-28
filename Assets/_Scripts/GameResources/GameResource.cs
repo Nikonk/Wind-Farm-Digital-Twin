@@ -1,20 +1,22 @@
 public class GameResource
 {
-    private string _name;
+    private InGameResource _resource;
     private int _currentAmount;
 
-    public GameResource(string name, int initialAmount)
+    public GameResource(InGameResource resource, int initialAmount)
     {
-        _name = name;
+        _resource = resource;
         _currentAmount = initialAmount;
     }
+
+    public InGameResource Name { get => _resource; }
+    public int Amount { get => _currentAmount; }
 
     public void ChangeAmount(int value)
     {
         _currentAmount += value;
-        if (_currentAmount < 0) _currentAmount = 0;
-    }
 
-    public string Name { get => _name; }
-    public int Amount { get => _currentAmount; }
+        if (_currentAmount < 0) 
+            _currentAmount = 0;
+    }
 }

@@ -17,8 +17,10 @@ MonoBehaviour:
   _description: Transform wind to energy
   _prefab: {fileID: 5781443243582092124, guid: 1796dfeb6989107478e259d28a4f28f8, type: 3}
   _cost:
-  - code: 0
-    amount: 100
+  - _resource: 0
+    _amount: 150
   _skills: []
   _productionModels:
-  - {fileID: 11400000, guid: 1095b65eb38b21641ab47242a7fcc2f0, type: 2}
+  - {fileID: 11400000, guid: e3984a9e8fccb2248a5464b05d279f35, type: 2}
+  _consumptionModels: []
+  _transferModels: []

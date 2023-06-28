@@ -15,10 +15,11 @@ MonoBehaviour:
   _code: Inverter
   _unitName: Inverter
   _description: Deliver energy to consumers
-  _healthpoints: 100
   _prefab: {fileID: 8895581116636359523, guid: f5bb7db34998219429ab083ab0b9f632, type: 3}
   _cost:
-  - code: money
-    amount: 150
+  - _resource: 0
+    _amount: 100
   _skills: []
-  _fieldOfView: 20
+  _productionModels: []
+  _consumptionModels: []
+  _transferModels: []

@@ -10,12 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: baf7237b2ea6f614b99f89e9ec60a71c, type: 3}
-  m_Name: GlobalParameters
+  m_Name: GameGlobalParameters
   m_EditorClassIdentifier: 
-  _fieldsToShowInGame:
-  - enableDayAndNightCycle
-  enableDayAndNightCycle: 0
-  dayLengthInSeconds: 100
-  dayInitialRatio: 0.25
-  baseEnergyProduction: 5
-  baseEnergyConsumption: 2
+  _fieldsToShowInGame: []
+  _baseEnergyProduction: 0
+  _baseEnergyConsumption: 0

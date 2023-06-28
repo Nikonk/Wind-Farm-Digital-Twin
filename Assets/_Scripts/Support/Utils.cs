@@ -4,6 +4,11 @@ using UnityEngine;
 public static class Utils
 {
     private static Texture2D _whiteTexture;
+    private static Camera _mainCamera;
+
+    private static Ray _ray;
+    private static RaycastHit _hit;
+
     public static Texture2D WhiteTexture
     {
         get
@@ -14,23 +19,21 @@ public static class Utils
                 _whiteTexture.SetPixel(0, 0, Color.white);
                 _whiteTexture.Apply();
             }
+
             return _whiteTexture;
         }
     }
 
-    private static Camera _mainCamera;
     public static Camera MainCamera
     {
         get
         {
             if (_mainCamera == null)
                 _mainCamera = Camera.main;
+
             return _mainCamera;
         }
     }
-
-    private static Ray _ray;
-    private static RaycastHit _hit;
 
     public static void DrawScreenRect(Rect rect, Color color)
     {
@@ -70,8 +73,8 @@ public static class Utils
         return bounds;
     }
 
-    public static Vector3 MiddleOfScreenPointToWorld()
-        { return MiddleOfScreenPointToWorld(MainCamera); }
+    public static Vector3 MiddleOfScreenPointToWorld() => MiddleOfScreenPointToWorld(MainCamera);
+
     public static Vector3 MiddleOfScreenPointToWorld(Camera cam)
     {
         _ray = cam.ScreenPointToRay(0.5f * new Vector2(Screen.width, Screen.height));
@@ -79,13 +82,13 @@ public static class Utils
                 _ray,
                 out _hit,
                 1000f,
-                Globals.TERRAIN_LAYER_MASK
+                Globals.TerrainLayerMask
             )) return _hit.point;
         return Vector3.zero;
     }
 
-    public static Vector3[] ScreenCornersToWorldPoints()
-        { return ScreenCornersToWorldPoints(MainCamera); }
+    public static Vector3[] ScreenCornersToWorldPoints() => ScreenCornersToWorldPoints(MainCamera);
+
     public static Vector3[] ScreenCornersToWorldPoints(Camera cam)
     {
         Vector3[] corners = new Vector3[4];
@@ -96,7 +99,7 @@ public static class Utils
                     _ray,
                     out _hit,
                     1000f,
-                    Globals.TERRAIN_LAYER_MASK
+                    Globals.TerrainLayerMask
                 )) corners[i] = _hit.point;
         }
         return corners;
@@ -105,7 +108,7 @@ public static class Utils
     public static Vector3 ProjectOnTerrain(Vector3 pos)
     {
         Vector3 initialPos = pos + Vector3.up * 1000f;
-        if (Physics.Raycast(initialPos, Vector3.down, out _hit, 2000f, Globals.FLAT_TERRAIN_LAYER_MASK))
+        if (Physics.Raycast(initialPos, Vector3.down, out _hit, 2000f, Globals.FlatTerrainLayerMask))
             pos = _hit.point;
         return pos;
     }
@@ -117,11 +120,11 @@ public static class Utils
         float dist = 1000f;
 
         _ray = MainCamera.ViewportPointToRay(bottomLeftCorner);
-        Vector3 bottomLeft = GameManager.Instance.mapWrapperCollider.Raycast(_ray, out _hit, dist)
+        Vector3 bottomLeft = GameManager.Instance.MapWrapperCollider.Raycast(_ray, out _hit, dist)
             ? _hit.point : Vector3.zero;
             
         _ray = MainCamera.ViewportPointToRay(topRightCorner);
-        Vector3 topRight = GameManager.Instance.mapWrapperCollider.Raycast(_ray, out _hit, dist)
+        Vector3 topRight = GameManager.Instance.MapWrapperCollider.Raycast(_ray, out _hit, dist)
             ? _hit.point : Vector3.zero;
 
         return (bottomLeft, topRight);
@@ -132,13 +135,13 @@ public static class Utils
         var resultDictionary = new Dictionary<InGameResource, int>();
         foreach (var value in convertationList)
         {
-            if (resultDictionary.ContainsKey(value.code))
+            if (resultDictionary.ContainsKey(value.Resource))
             {
-                resultDictionary[value.code] += value.amount;
+                resultDictionary[value.Resource] += value.Amount;
             }
             else
             {
-                resultDictionary.Add(value.code, value.amount);
+                resultDictionary.Add(value.Resource, value.Amount);
             }
         }
         return resultDictionary;

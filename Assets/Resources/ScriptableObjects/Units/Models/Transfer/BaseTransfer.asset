@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4da762aa0a841584fbcf331790d9c6e1, type: 3}
-  m_Name: BaseConsumption
+  m_Script: {fileID: 11500000, guid: 78c7efd14668c8a4996fd9126cbbdbfc, type: 3}
+  m_Name: BaseTransfer
   m_EditorClassIdentifier: 
-  _consumption:
+  _transferResources:
   - _resource: 2
-    _amount: 2
+    _amount: 25

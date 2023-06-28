@@ -8,9 +8,16 @@ namespace GitIntegration
     [InitializeOnLoad]
     public class SmartMergeRegistrator
     {
-        const string SmartMergeRegistratorEditorPrefsKey = "smart_merge_installed";
-        const int Version = 1;
-        static string VersionKey = $"{Version}_{Application.unityVersion}";
+        private const string SmartMergeRegistratorEditorPrefsKey = "smart_merge_installed";
+        private const int Version = 1;
+        private static string VersionKey = $"{Version}_{Application.unityVersion}";
+
+        static SmartMergeRegistrator()
+        {
+            var instaledVersionKey = EditorPrefs.GetString(SmartMergeRegistratorEditorPrefsKey);
+            if (instaledVersionKey != VersionKey)
+                SmartMergeRegister();
+        }
 
         public static string ExecuteGitWithParams(string param)
         {
@@ -36,7 +43,7 @@ namespace GitIntegration
         }
 
         [MenuItem("Tools/Git/SmartMerge registration")]
-        static void SmartMergeRegister()
+        private static void SmartMergeRegister()
         {
             try
             {
@@ -51,14 +58,6 @@ namespace GitIntegration
             {
                 Debug.Log($"Fail to register UnityYAMLMerge with error: {e}");
             }
-        }
-
-        //Unity calls the static constructor when the engine opens
-        static SmartMergeRegistrator()
-        {
-            var instaledVersionKey = EditorPrefs.GetString(SmartMergeRegistratorEditorPrefsKey);
-            if (instaledVersionKey != VersionKey)
-                SmartMergeRegister();
         }
     }
 }
